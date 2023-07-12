@@ -26,6 +26,7 @@ namespace MyKompasLibrary
         }
 
         [return: MarshalAs(UnmanagedType.BStr)]
+
         #region Формируем меню команд
         public string ExternalMenuItem(short number, ref short itemType, ref short command)
         {
@@ -38,10 +39,26 @@ namespace MyKompasLibrary
                     command = 1;
                     break;
                 case 2:
-                    result = "Тест";
+                    result = "Создать Чертеж";
                     command = 1;
                     break;
                 case 3:
+                    result = "Создать Фрагмент";
+                    command = 1;
+                    break;
+                case 4:
+                    result = "Создать Деталь";
+                    command = 1;
+                    break;
+                case 5:
+                    result = "Создать Сборку";
+                    command = 1;
+                    break;
+                case 6:
+                    result = "Тест";
+                    command = 1;
+                    break;
+                case 7:
                     command = -1;
                     itemType = 8; // "ENDMENU"
                     break;
@@ -50,12 +67,33 @@ namespace MyKompasLibrary
         }
 
         #endregion
+
         /// <summary>
         /// Закрыть документ не сохраняясь
         /// </summary>
         private void CloseNoSave()
         {
             activeDocument.Close(DocumentCloseOptions.kdDoNotSaveChanges);
+        }
+        private void CreatDrawing()
+        {
+            IDocuments documents = application.Documents;
+            documents.Add(DocumentTypeEnum.ksDocumentDrawing);
+        }
+        private void CreatFragment()
+        {
+            IDocuments documents = application.Documents;
+            documents.Add(DocumentTypeEnum.ksDocumentFragment);
+        }
+        private void CreatPart()
+        {
+            IDocuments documents = application.Documents;
+            documents.Add(DocumentTypeEnum.ksDocumentPart);
+        }
+        private void CreatAssemble()
+        {
+            IDocuments documents = application.Documents;
+            documents.Add(DocumentTypeEnum.ksDocumentAssembly);
         }
         private void Test()
         {
@@ -73,8 +111,12 @@ namespace MyKompasLibrary
             //Вызываем команды
             switch (command)
             {
-                case 1: CloseNoSave(); break; 
-                case 2: Test(); break; 
+                case 1: CloseNoSave(); break;
+                case 2: CreatDrawing(); break;
+                case 3: CreatFragment(); break;
+                case 4: CreatPart(); break;
+                case 5: CreatAssemble(); break;
+                case 6: Test(); break; 
             }
         }
 
