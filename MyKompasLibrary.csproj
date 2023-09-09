@@ -58,6 +58,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Dll\Kompas6API5.dll" />
+    <Content Include="Dll\Kompas6Constants.dll" />
+    <Content Include="Dll\KompasAPI7.dll" />
     <Content Include="MyKompasLibrary.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
