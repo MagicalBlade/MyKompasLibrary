@@ -55,10 +55,14 @@ namespace MyKompasLibrary
                     command = 1;
                     break;
                 case 6:
-                    result = "Тест";
+                    result = "Точка в центре окружности";
                     command = 1;
                     break;
                 case 7:
+                    result = "Тест";
+                    command = 1;
+                    break;
+                case 8:
                     command = -1;
                     itemType = 8; // "ENDMENU"
                     break;
@@ -95,11 +99,40 @@ namespace MyKompasLibrary
             IDocuments documents = application.Documents;
             documents.Add(DocumentTypeEnum.ksDocumentAssembly);
         }
+        private void PointCenterCircle()
+        {
+            ksDocument2D document2DAPI5 = kompas.ActiveDocument2D();
+            IKompasDocument2D kompasDocument2D = (IKompasDocument2D)activeDocument;
+            IKompasDocument2D1 kompasDocument2D1 = (IKompasDocument2D1)kompasDocument2D;
+            ISelectionManager selectionManager = kompasDocument2D1.SelectionManager;
+            Array array = selectionManager.SelectedObjects as Array;
+
+            document2DAPI5.ksUndoContainer(true);
+            if (array != null)
+            {
+                foreach (IDrawingObject obj in array)
+                {
+                    if (obj.DrawingObjectType == DrawingObjectTypeEnum.ksDrCircle)
+                    {
+                        ICircle circle = (ICircle)obj;
+                        IViewsAndLayersManager viewsAndLayersManager = kompasDocument2D.ViewsAndLayersManager;
+                        IViews views = viewsAndLayersManager.Views;
+                        IView view = views.ActiveView;
+                        IDrawingContainer drawingContainer = (IDrawingContainer)view;
+                        IPoints points = drawingContainer.Points;
+                        IPoint point = points.Add();
+                        point.X = circle.Xc; point.Y = circle.Yc;
+                        point.Update();
+                    }
+                }
+            }
+            document2DAPI5.ksUndoContainer(false);
+        }
         private void Test()
         {
             ksDocument2D kompasDocument = kompas.ActiveDocument2D();
             ksLibStyle ksLibStyle = kompas.GetParamStruct(77);
-            MessageBox.Show($"{kompasDocument.ksIsStyleInDocument(1, ksLibStyle, 1)}");;
+            MessageBox.Show($"{kompasDocument.ksIsStyleInDocument(1, ksLibStyle, 1)}"); ;
         }
 
         // Головная функция библиотеки
@@ -116,7 +149,8 @@ namespace MyKompasLibrary
                 case 3: CreatFragment(); break;
                 case 4: CreatPart(); break;
                 case 5: CreatAssemble(); break;
-                case 6: Test(); break; 
+                case 6: PointCenterCircle(); break; 
+                case 7: Test(); break; 
             }
         }
 
