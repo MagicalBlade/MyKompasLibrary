@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Reflection;
 using Microsoft.Win32;
 using System.Windows.Forms;
+using MyKompasLibrary.Data;
 
 namespace MyKompasLibrary
 {
@@ -59,7 +60,7 @@ namespace MyKompasLibrary
                     command = 1;
                     break;
                 case 7:
-                    result = "Тест";
+                    result = "Скопировать название из штампа";
                     command = 1;
                     break;
                 case 8:
@@ -128,11 +129,29 @@ namespace MyKompasLibrary
             }
             document2DAPI5.ksUndoContainer(false);
         }
-        private void Test()
+        private void CopyNameFromStamp()
         {
-            ksDocument2D kompasDocument = kompas.ActiveDocument2D();
-            ksLibStyle ksLibStyle = kompas.GetParamStruct(77);
-            MessageBox.Show($"{kompasDocument.ksIsStyleInDocument(1, ksLibStyle, 1)}"); ;
+            IKompasDocument kompasDocument = application.ActiveDocument;
+            ILayoutSheets layoutSheets = kompasDocument.LayoutSheets;
+            if (layoutSheets == null) return;
+            if (layoutSheets.Count == 0) return;
+            ILayoutSheet layoutSheet = layoutSheets.ItemByNumber[1];
+            // Получение листа в старых версиях чертежа. В них видимо нет возможности получить лист по номеру листа.
+            if (layoutSheet == null)
+            {
+                foreach (ILayoutSheet item in layoutSheets)
+                {
+                    layoutSheet = item;
+                    break;
+                }
+            };
+            IStamp stamp = layoutSheet.Stamp;
+            if (stamp == null) return;
+            IText text = stamp.Text[2];
+
+            string plainText = $"{text.Str}";
+            string htmlText = $"<table><tr><td>{text.Str}</td></tr></table>";
+            Excel.CopyToExcel(plainText, htmlText);
         }
 
         // Головная функция библиотеки
@@ -150,7 +169,7 @@ namespace MyKompasLibrary
                 case 4: CreatPart(); break;
                 case 5: CreatAssemble(); break;
                 case 6: PointCenterCircle(); break; 
-                case 7: Test(); break; 
+                case 7: CopyNameFromStamp(); break; 
             }
         }
 
