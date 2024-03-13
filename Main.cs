@@ -18,6 +18,7 @@ namespace MyKompasLibrary
     public class Main
     {
         KompasObject Kompas;
+        KompasObject KompasEvent;
         IApplication Application;
         IKompasDocument ActiveDocument;
         // Имя библиотеки
@@ -73,6 +74,8 @@ namespace MyKompasLibrary
         }
 
         #endregion
+
+        #region Команды
 
         /// <summary>
         /// Закрыть документ не сохраняясь
@@ -153,25 +156,28 @@ namespace MyKompasLibrary
             string plainText = $"{text.Str}";
             string htmlText = $"<table><tr><td>{text.Str}</td></tr></table>";
             Excel.CopyToExcel(plainText, htmlText);
+            
+        } 
+        private void TestEvent()
+        {
             //ApplicationEvent.OpenDocumentSubscribe();
             //LibInterfaceNotifyEntry(Kompas);
-            Kompas6API5.ksKompasObjectNotify_Event ksKompasObjectNotify = Kompas as Kompas6API5.ksKompasObjectNotify_Event;
+            Kompas6API5.ksKompasObjectNotify_Event ksKompasObjectNotify = KompasEvent as Kompas6API5.ksKompasObjectNotify_Event;
             ksKompasObjectNotify.OpenDocument += OpenDocument;
 
-            ksDocument2D ksDocument2D = Kompas.ActiveDocument2D();
+            ksDocument2D ksDocument2D = KompasEvent.ActiveDocument2D();
             ksDocument2DNotify_Event ksDocument2DNotify_Event = ksDocument2D.GetDocument2DNotify() as ksDocument2DNotify_Event;
             ksDocument2DNotify_Event.BeginInsertFragment += BeginInsertFragment;
             MessageBox.Show("Подписался");
             //ksObject2DNotify_Event ksObject2DNotify = ksDocument2D.GetObject2DNotify(0) as ksObject2DNotify_Event;
             //ksObject2DNotify.BeginDelete += BeginDelete;
-
-
         }
+        #endregion
 
         // Головная функция библиотеки
         public void ExternalRunCommand([In] short command, [In] short mode, [In, MarshalAs(UnmanagedType.IDispatch)] object kompas_)
         {
-            //Kompas = (KompasObject)kompas_;
+            Kompas = (KompasObject)kompas_;
             Application = (IApplication)Kompas.ksGetApplication7();
             ActiveDocument = Application.ActiveDocument;
             //Вызываем команды
@@ -184,6 +190,7 @@ namespace MyKompasLibrary
                 case 5: CreatAssemble(); break;
                 case 6: PointCenterCircle(); break; 
                 case 7: CopyNameFromStamp(); break; 
+                case 8: TestEvent(); break;
             }
         }
 
@@ -196,7 +203,7 @@ namespace MyKompasLibrary
 
         public bool LibInterfaceNotifyEntry(object kompas_)
         {
-            Kompas = (KompasObject)kompas_;
+            KompasEvent = (KompasObject)kompas_;
 
             return true;
         }
