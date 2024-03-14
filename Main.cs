@@ -160,17 +160,37 @@ namespace MyKompasLibrary
         } 
         private void TestEvent()
         {
-            //ApplicationEvent.OpenDocumentSubscribe();
-            //LibInterfaceNotifyEntry(Kompas);
-            Kompas6API5.ksKompasObjectNotify_Event ksKompasObjectNotify = KompasEvent as Kompas6API5.ksKompasObjectNotify_Event;
-            ksKompasObjectNotify.OpenDocument += OpenDocument;
-
+            IApplication applicationevent = KompasEvent.ksGetApplication7();
             ksDocument2D ksDocument2D = KompasEvent.ActiveDocument2D();
-            ksDocument2DNotify_Event ksDocument2DNotify_Event = ksDocument2D.GetDocument2DNotify() as ksDocument2DNotify_Event;
-            ksDocument2DNotify_Event.BeginInsertFragment += BeginInsertFragment;
-            MessageBox.Show("Подписался");
+            
+            //Kompas6API5.ksKompasObjectNotify_Event ksKompasObjectNotify = KompasEvent as Kompas6API5.ksKompasObjectNotify_Event;
+            //ksKompasObjectNotify.OpenDocument += OpenDocument;
+
+            //Kompas6API5.ksDocumentFileNotify_Event ksDocumentFileNotify = applicationevent.ActiveDocument as Kompas6API5.ksDocumentFileNotify_Event;
+            //if (ksDocumentFileNotify == null) MessageBox.Show("Не подписался");
+            //ksDocumentFileNotify.SaveDocument += SaveDocument;
+
+
+            IKompasDocument2D kompasDocument2D = (IKompasDocument2D)applicationevent.ActiveDocument;
+            IKompasDocument2D1 kompasDocument2D1 = (IKompasDocument2D1)applicationevent.ActiveDocument;
+            IViewsAndLayersManager viewsAndLayersManager = kompasDocument2D.ViewsAndLayersManager;
+            IViews views = viewsAndLayersManager.Views;
+            IView view = views.ActiveView;
+            IDrawingContainer drawingContainer = view as IDrawingContainer;
+            ILineSegments lineSegments = drawingContainer.LineSegments;
+
+            ISelectionManager selectionManager = kompasDocument2D1.SelectionManager;
+            object select = selectionManager.SelectedObjects;
+
+            ksDrawingObjectNotify_Event ksDrawingObjectNotify_Event = select as ksDrawingObjectNotify_Event;
+            if(ksDrawingObjectNotify_Event == null) MessageBox.Show("Не подписался");
+            ksDrawingObjectNotify_Event.Delete += DeleteEvent;
+
             //ksObject2DNotify_Event ksObject2DNotify = ksDocument2D.GetObject2DNotify(0) as ksObject2DNotify_Event;
             //ksObject2DNotify.BeginDelete += BeginDelete;
+            MessageBox.Show("Подписался");
+            
+
         }
         #endregion
 
@@ -201,6 +221,7 @@ namespace MyKompasLibrary
             return Assembly.GetExecutingAssembly().Location;
         }
 
+        #region Обработка событий
         public bool LibInterfaceNotifyEntry(object kompas_)
         {
             KompasEvent = (KompasObject)kompas_;
@@ -208,11 +229,18 @@ namespace MyKompasLibrary
             return true;
         }
 
-        public bool BeginInsertFragment()
+        public bool SaveDocument()
         {
             MessageBox.Show($"Попался");
             return true;
         }
+        public bool DeleteEvent(object obj)
+        {
+            MessageBox.Show($"Попался");
+            return true;
+        }
+
+        #endregion
 
         public bool OpenDocument(object newDoc, int docType)
         {
