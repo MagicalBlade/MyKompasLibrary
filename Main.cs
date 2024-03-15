@@ -182,13 +182,26 @@ namespace MyKompasLibrary
             ISelectionManager selectionManager = kompasDocument2D1.SelectionManager;
             object select = selectionManager.SelectedObjects;
 
-            ksDrawingObjectNotify_Event ksDrawingObjectNotify_Event = select as ksDrawingObjectNotify_Event;
-            if(ksDrawingObjectNotify_Event == null) MessageBox.Show("Не подписался");
-            ksDrawingObjectNotify_Event.Delete += DeleteEvent;
+            //ksDrawingObjectNotify_Event ksDrawingObjectNotify_Event = select as ksDrawingObjectNotify_Event;
+            //if(ksDrawingObjectNotify_Event == null) MessageBox.Show("Не подписался");
+            //ksDrawingObjectNotify_Event.Delete += DeleteEvent;
 
             //ksObject2DNotify_Event ksObject2DNotify = ksDocument2D.GetObject2DNotify(0) as ksObject2DNotify_Event;
             //ksObject2DNotify.BeginDelete += BeginDelete;
+            //applicationevent.ExecuteKompasCommand((int)ProcessTypeEnum.prPoint, true);
+
+            IProcess2D process2D = kompasDocument2D1.LibProcess[ksProcess2DTypeEnum.ksProcess2DCursor];
+            IProcess process = process2D as IProcess;
+            IProcessParam processParam = applicationevent.CreateProcessParam();
+            //ksProcess2DNotify_Event ksProcess2DNotify_Event = process2D as ksProcess2DNotify_Event;
+            //if (ksProcess2DNotify_Event == null) MessageBox.Show("Не подписался");
+            //ksProcess2DNotify_Event.Stop += RunEvent;
+            process.Update();
+            MessageBox.Show($"{process.Caption}");
+            process.Run(false, true);
+
             MessageBox.Show("Подписался");
+            applicationevent.StopCurrentProcess(false, kompasDocument2D);
             
 
         }
@@ -240,6 +253,11 @@ namespace MyKompasLibrary
             return true;
         }
 
+        public bool RunEvent()
+        {
+            MessageBox.Show($"Попался");
+            return true;
+        }
         #endregion
 
         public bool OpenDocument(object newDoc, int docType)
