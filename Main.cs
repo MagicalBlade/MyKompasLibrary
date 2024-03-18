@@ -189,19 +189,23 @@ namespace MyKompasLibrary
             //ksObject2DNotify_Event ksObject2DNotify = ksDocument2D.GetObject2DNotify(0) as ksObject2DNotify_Event;
             //ksObject2DNotify.BeginDelete += BeginDelete;
             //applicationevent.ExecuteKompasCommand((int)ProcessTypeEnum.prPoint, true);
+            ksProcess2DTypeEnum ksProcess2DTypeEnum = (ksProcess2DTypeEnum)ProcessTypeEnum.prLineSeg;
+            MessageBox.Show($"{ksProcess2DTypeEnum}");
 
-            IProcess2D process2D = kompasDocument2D1.LibProcess[ksProcess2DTypeEnum.ksProcess2DCursor];
+            IProcess2D process2D = kompasDocument2D1.LibProcess[ksProcess2DTypeEnum.ksProcess2DPlacement];
+
+
+
             IProcess process = process2D as IProcess;
-            IProcessParam processParam = applicationevent.CreateProcessParam();
+            //IProcessParam processParam = applicationevent.CreateProcessParam();
             //ksProcess2DNotify_Event ksProcess2DNotify_Event = process2D as ksProcess2DNotify_Event;
             //if (ksProcess2DNotify_Event == null) MessageBox.Show("Не подписался");
             //ksProcess2DNotify_Event.Stop += RunEvent;
             process.Update();
             MessageBox.Show($"{process.Caption}");
-            process.Run(false, true);
+            process.Run(true, true);
 
             MessageBox.Show("Подписался");
-            applicationevent.StopCurrentProcess(false, kompasDocument2D);
             
 
         }
