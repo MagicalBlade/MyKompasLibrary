@@ -12,6 +12,7 @@ using Microsoft.Win32;
 using System.Windows.Forms;
 using MyKompasLibrary.Data;
 using MyKompasLibrary.Event;
+using System.IO;
 
 namespace MyKompasLibrary
 {
@@ -237,14 +238,25 @@ namespace MyKompasLibrary
         {
             return Assembly.GetExecutingAssembly().Location;
         }
-
-        #region Обработка событий
         public bool LibInterfaceNotifyEntry(object kompas_)
         {
             KompasEvent = (KompasObject)kompas_;
-
             return true;
         }
+
+        public string GetHelpFile()
+        {
+            if (File.Exists("c:\\Program Files\\ASCON\\KOMPAS-3D v20\\Libs\\MyKompasLibrary\\Help\\MyKompasLibrary.chm"))
+            {
+                return "c:\\Program Files\\ASCON\\KOMPAS-3D v20\\Libs\\MyKompasLibrary\\Help\\MyKompasLibrary.chm";
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        #region Обработка событий
 
         public bool SaveDocument()
         {
@@ -262,13 +274,13 @@ namespace MyKompasLibrary
             MessageBox.Show($"Попался");
             return true;
         }
-        #endregion
-
         public bool OpenDocument(object newDoc, int docType)
         {
             MessageBox.Show("Открыт документ");
             return true;
         }
+        #endregion
+
 
         public int ExternalGetToolBarId(short barType, short index)
         {
