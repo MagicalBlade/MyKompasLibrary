@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using MyKompasLibrary.Data;
 using MyKompasLibrary.Event;
 using System.IO;
+using System.Diagnostics;
 
 namespace MyKompasLibrary
 {
@@ -210,6 +211,24 @@ namespace MyKompasLibrary
             
 
         }
+
+
+        /// <summary>
+        /// Открытие файла помощи
+        /// </summary>
+        private void OpenHelp()
+        {
+            ILibraryManager libraryManager = Application.LibraryManager;
+            string path = $"{Path.GetDirectoryName(libraryManager.CurrentLibrary.PathName)}\\Help\\index.html"; //Получить путь к папке библиотеки
+            if (File.Exists(path))
+            {
+                Process.Start(path);
+            }
+            else
+            {
+                Application.MessageBoxEx("Файл помощи не найден. Обратитесь к разработчику", "Ошибка", 64);
+            }
+        }
         #endregion
 
         // Головная функция библиотеки
@@ -229,6 +248,9 @@ namespace MyKompasLibrary
                 case 6: PointCenterCircle(); break; 
                 case 7: CopyNameFromStamp(); break; 
                 case 8: TestEvent(); break;
+                
+                
+                case 999: OpenHelp(); break;
             }
         }
 
