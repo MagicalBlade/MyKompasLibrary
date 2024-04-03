@@ -14,6 +14,8 @@ using MyKompasLibrary.Data;
 using MyKompasLibrary.Event;
 using System.IO;
 using System.Diagnostics;
+using Kompas6Constants3D;
+using System.Text.RegularExpressions;
 
 namespace MyKompasLibrary
 {
@@ -86,26 +88,46 @@ namespace MyKompasLibrary
         {
             ActiveDocument.Close(DocumentCloseOptions.kdDoNotSaveChanges);
         }
+        
+        /// <summary>
+        /// Создать чертеж
+        /// </summary>
         private void CreatDrawing()
         {
             IDocuments documents = Application.Documents;
             documents.Add(DocumentTypeEnum.ksDocumentDrawing);
         }
+        
+        /// <summary>
+        /// Создать фрагмент
+        /// </summary>
         private void CreatFragment()
         {
             IDocuments documents = Application.Documents;
             documents.Add(DocumentTypeEnum.ksDocumentFragment);
         }
+        
+        /// <summary>
+        /// Создать 3D деталь
+        /// </summary>
         private void CreatPart()
         {
             IDocuments documents = Application.Documents;
             documents.Add(DocumentTypeEnum.ksDocumentPart);
         }
+        
+        /// <summary>
+        /// Создать 3D сборку
+        /// </summary>
         private void CreatAssemble()
         {
             IDocuments documents = Application.Documents;
             documents.Add(DocumentTypeEnum.ksDocumentAssembly);
         }
+
+        /// <summary>
+        /// Создать точку в центре окружности
+        /// </summary>
         private void PointCenterCircle()
         {
             ksDocument2D document2DAPI5 = Kompas.ActiveDocument2D();
@@ -135,6 +157,10 @@ namespace MyKompasLibrary
             }
             document2DAPI5.ksUndoContainer(false);
         }
+        
+        /// <summary>
+        /// Копирование названия чертежа из штампа
+        /// </summary>
         private void CopyNameFromStamp()
         {
             IKompasDocument kompasDocument = Application.ActiveDocument;
@@ -159,7 +185,120 @@ namespace MyKompasLibrary
             string htmlText = $"<table><tr><td>{text.Str}</td></tr></table>";
             Excel.CopyToExcel(plainText, htmlText);
             
-        } 
+        }
+
+        /// <summary>
+        /// Создать 3D деталь из деталировки
+        /// </summary>
+        private void CreatPartFromPos()
+        {
+            double Thickness = 10; //Толщина выдавливания
+            if (Application.ActiveDocument.Type != KompasAPIObjectTypeEnum.ksObjectDrawingDocument) return;
+            IDocuments documents = Application.Documents;
+            IKompasDocument kompasDocument = Application.ActiveDocument;
+            ksDocument2D ksdocument2D = Kompas.ActiveDocument2D();
+            //Получение координат нулевой точки детали
+            double selectX = 0;
+            double selectY = 0;
+            if (ksdocument2D.ksCursor(null, ref selectX, ref selectY, null) != -1) return;
+            //Получаем контур детали который будет передан в 3D деталь
+            ksInertiaParam ksinertiaParam = Kompas.GetParamStruct(83); //Параметры МЦХ
+            int group = ksdocument2D.ksViewGetObjectArea(); //Контур площади
+            if (group == 0)
+            {
+                return;
+            }
+            //Перемещаем группу, за указанную точку, в начало координат
+            ksdocument2D.ksMoveObj(group, - selectX, - selectY);
+            //Копируем группу в буфер обмена
+            ksdocument2D.ksWriteGroupToClip(group, true);
+
+
+
+
+            ILayoutSheets layoutSheets = kompasDocument.LayoutSheets;
+            if (layoutSheets == null) return;
+            if (layoutSheets.Count == 0) return;
+            ILayoutSheet layoutSheet = layoutSheets.ItemByNumber[1];
+            // Получение листа в старых версиях чертежа. В них видимо нет возможности получить лист по номеру листа.
+            if (layoutSheet == null)
+            {
+                foreach (ILayoutSheet item in layoutSheets)
+                {
+                    layoutSheet = item;
+                    break;
+                }
+            };
+            IStamp stamp = layoutSheet.Stamp;
+            if (stamp == null) return;
+
+            const string pattern = "[^\\d\\.,-]";
+            string postext = stamp.Text[2].Str; //Ячейка позиции
+            postext = Regex.Replace(postext, pattern, "");
+            postext = postext.Trim('.');
+
+            string stampid3 = stamp.Text[3].Str;//Ячейка с толщиной, материалом и т.д.
+            if (stampid3 != "")
+            {
+                string[] profile = stampid3.Split("$dsm; ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                if (profile.Length > 4)
+                {
+                    if (!double.TryParse(profile[1], out Thickness))
+                    {
+
+                    }
+                }
+            }
+
+            //TODO получить толщину и номер позиции
+
+            //Создаем 3D деталь
+            IKompasDocument kompasDocumentCreated = documents.AddWithDefaultSettings(DocumentTypeEnum.ksDocumentPart, true);
+            IKompasDocument3D kompasDocument3D = kompasDocumentCreated as IKompasDocument3D;
+            IPart7 part7 = kompasDocument3D.TopPart;
+            IModelContainer modelContainer = (IModelContainer)part7;
+            ISketchs sketchs = modelContainer.Sketchs;
+            ISketch sketch = sketchs.Add();
+            //TODO Запрос у пользователя на какой плоскости выдавливание делать и какое направление или симметрия
+            //Выбор плоскости выдавливания
+            sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOX] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOY];
+            sketch.LeftHandedCS = false;
+            sketch.Plane = (IPlane3D)part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOY];
+            part7.Update();
+            //Начало формирования эскиза
+            IKompasDocument sketch_KD = sketch.BeginEdit();
+            IKompasDocument2D1 sketch_2D1 = sketch_KD as IKompasDocument2D1;
+            IDrawingGroups drawingGroups = sketch_2D1.DrawingGroups;
+            IDrawingGroup drawingGroup = drawingGroups.Add(true, "");
+            //Считываем из буфера обмена в группу
+            drawingGroup.ReadFromClip(false, false);
+            //Вставляем группу
+            drawingGroup.Store();
+            //Закончили формировать эскиз
+            sketch.EndEdit();
+            sketch.Update();
+            IExtrusions extrusions = modelContainer.Extrusions;
+            IExtrusion extrusion = extrusions.Add(ksObj3dTypeEnum.o3d_bossExtrusion);
+            extrusion.Direction = ksDirectionTypeEnum.dtMiddlePlane; //Выдавливание "симметрично"
+            extrusion.Name = $"t{Thickness}";
+            extrusion.Sketch = (Sketch)sketch;
+            if (Thickness == 0)
+            {
+                MessageBox.Show("Не указана толщина. Выдавливание произведено с толщиной равной десяти.");
+                extrusion.Depth[true] = Thickness; //Толщина выдавливания
+            }
+            else
+            {
+                extrusion.Depth[true] = Thickness; //Толщина выдавливания
+            }
+
+            if (!extrusion.Update())
+            {
+                Application.MessageBoxEx("Не удалось выдавить", "Ошибка", 64);
+                return;
+            }
+        }
+
         private void TestEvent()
         {
             IApplication applicationevent = KompasEvent.ksGetApplication7();
@@ -247,7 +386,8 @@ namespace MyKompasLibrary
                 case 5: CreatAssemble(); break;
                 case 6: PointCenterCircle(); break; 
                 case 7: CopyNameFromStamp(); break; 
-                case 8: TestEvent(); break;
+                case 8: CreatPartFromPos(); break;
+                case 9: TestEvent(); break;
                 
                 
                 case 999: OpenHelp(); break;
