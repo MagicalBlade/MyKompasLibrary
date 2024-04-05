@@ -9,16 +9,13 @@ namespace MyKompasLibrary.Data
 {
     internal static class Data_CreatPartFromPos
     {
+        private static string rb_plane = "rb_Top";
+        private static string rb_Direction = "rb_Symmetrically";
         public static double Thickness = 10;
-
-        private static ksObj3dTypeEnum plan = ksObj3dTypeEnum.o3d_planeXOY;
-        private static ksObj3dTypeEnum directingObject = ksObj3dTypeEnum.o3d_planeXOY;
         private static string thickness_str = "10";
-        private static bool leftHandedCS = false;
 
-        public static ksObj3dTypeEnum Plan { get => plan; set => plan = value; }
+        public static string Rb_plane { get => rb_plane; set => rb_plane = value; }
+        public static string Rb_Direction { get => rb_Direction; set => rb_Direction = value; }
         public static string Thickness_str { get => thickness_str; set => thickness_str = value; }
-        public static bool LeftHandedCS { get => leftHandedCS; set => leftHandedCS = value; }
-        public static ksObj3dTypeEnum DirectingObject { get => directingObject; set => directingObject = value; }
     }
 }

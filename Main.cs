@@ -309,15 +309,18 @@ namespace MyKompasLibrary
             ksdocument2D.ksMoveObj(group, - selectX, - selectY);
             //Копируем группу в буфер обмена
             ksdocument2D.ksWriteGroupToClip(group, true);
-
+            //Запуск диалога
             Form_CreatPartFromPos form_CreatPartFromPos = new Form_CreatPartFromPos();
             //Задание начальных параметров
+            form_CreatPartFromPos.gb_plane.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Name == $"{Data_CreatPartFromPos.Rb_plane}").Checked = true;
+            form_CreatPartFromPos.gb_Direction.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Name == $"{Data_CreatPartFromPos.Rb_Direction}").Checked = true;
             form_CreatPartFromPos.tb_Thickness.Text = Data_CreatPartFromPos.Thickness_str;
-            form_CreatPartFromPos.tb_Front.Checked = true;
             if (form_CreatPartFromPos.ShowDialog() == DialogResult.Cancel)
             {
                 return;
             }
+            Data_CreatPartFromPos.Rb_plane = form_CreatPartFromPos.gb_plane.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name;
+            Data_CreatPartFromPos.Rb_Direction = form_CreatPartFromPos.gb_Direction.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name;
             //Получение толщины детали и приведение к числу
             Data_CreatPartFromPos.Thickness_str = form_CreatPartFromPos.tb_Thickness.Text;
             if (!double.TryParse(Data_CreatPartFromPos.Thickness_str, out Data_CreatPartFromPos.Thickness))
@@ -325,10 +328,6 @@ namespace MyKompasLibrary
                 MessageBox.Show("Не верно указана толщина детали!");
                 return;
             }
-           
-
-
-
             //Создаем 3D деталь
             IKompasDocument kompasDocumentCreated = documents.AddWithDefaultSettings(DocumentTypeEnum.ksDocumentPart, true);
             IKompasDocument3D kompasDocument3D = kompasDocumentCreated as IKompasDocument3D;
@@ -337,20 +336,20 @@ namespace MyKompasLibrary
             IModelContainer modelContainer = (IModelContainer)part7;
             ISketchs sketchs = modelContainer.Sketchs;
             Sketch sketch = sketchs.Add();
-            //Выбор плоскости выдавливания
-            switch (form_CreatPartFromPos.groupBox1.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name)
+            //Задание плоскости выдавливания
+            switch (form_CreatPartFromPos.gb_plane.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name)
             {
                 case "rb_Top":
                     sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOY] as IPlane3D;
                     sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOX] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOY];
                     sketch.LeftHandedCS = false;
                     break;
-                case "tb_Bottom":
+                case "rb_Bottom":
                     sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOZ] as IPlane3D;
                     sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOX];
                     sketch.LeftHandedCS = true;
                     break;
-                case "tb_Front":
+                case "rb_Front":
                     sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeYOZ] as IPlane3D;
                     sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOZ];
                     sketch.LeftHandedCS = true;
@@ -365,7 +364,7 @@ namespace MyKompasLibrary
                     sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOZ];
                     sketch.LeftHandedCS = true;
                     break;
-                case "tb_Right":
+                case "rb_Right":
                     sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOZ] as IPlane3D;
                     sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOZ];
                     sketch.LeftHandedCS = false;
@@ -388,33 +387,50 @@ namespace MyKompasLibrary
             sketch.Update();
             IExtrusions extrusions = modelContainer.Extrusions;
             IExtrusion extrusion = extrusions.Add(ksObj3dTypeEnum.o3d_bossExtrusion);
-
-            switch (form_CreatPartFromPos.groupBox2.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name)
+            //Задание направления выдавливания
+            switch (form_CreatPartFromPos.gb_Direction.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name)
             {
                 case "rb_Straight":
                     extrusion.Direction = ksDirectionTypeEnum.dtNormal;
+                    if (Data_CreatPartFromPos.Thickness == 0)
+                    {
+                        MessageBox.Show("Не указана толщина. Выдавливание произведено с толщиной равной десяти.");
+                        extrusion.Depth[true] = Data_CreatPartFromPos.Thickness;
+                    }
+                    else
+                    {
+                        extrusion.Depth[true] = Data_CreatPartFromPos.Thickness;
+                    }
                     break;
                 case "rb_Back":
                     extrusion.Direction = ksDirectionTypeEnum.dtReverse;
+                    if (Data_CreatPartFromPos.Thickness == 0)
+                    {
+                        MessageBox.Show("Не указана толщина. Выдавливание произведено с толщиной равной десяти.");
+                        extrusion.Depth[false] = Data_CreatPartFromPos.Thickness;
+                    }
+                    else
+                    {
+                        extrusion.Depth[false] = Data_CreatPartFromPos.Thickness;
+                    }
                     break;
                 case "rb_Symmetrically":
                     extrusion.Direction = ksDirectionTypeEnum.dtMiddlePlane;
+                    if (Data_CreatPartFromPos.Thickness == 0)
+                    {
+                        MessageBox.Show("Не указана толщина. Выдавливание произведено с толщиной равной десяти.");
+                        extrusion.Depth[true] = Data_CreatPartFromPos.Thickness;
+                    }
+                    else
+                    {
+                        extrusion.Depth[true] = Data_CreatPartFromPos.Thickness;
+                    }
                     break;
                 default:
                     break;
             }
             extrusion.Name = $"t{Data_CreatPartFromPos.Thickness}";
             extrusion.Sketch = sketch;
-            if (Data_CreatPartFromPos.Thickness == 0)
-            {
-                MessageBox.Show("Не указана толщина. Выдавливание произведено с толщиной равной десяти.");
-                extrusion.Depth[true] = Data_CreatPartFromPos.Thickness; //Толщина выдавливания
-            }
-            else
-            {
-                extrusion.Depth[true] = Data_CreatPartFromPos.Thickness; //Толщина выдавливания
-            }
-
             if (!extrusion.Update())
             {
                 Application.MessageBoxEx("Не удалось выдавить", "Ошибка", 64);
