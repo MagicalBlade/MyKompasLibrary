@@ -12,11 +12,13 @@ namespace MyKompasLibrary.Data
         public static double Thickness = 10;
 
         private static ksObj3dTypeEnum plan = ksObj3dTypeEnum.o3d_planeXOY;
+        private static ksObj3dTypeEnum directingObject = ksObj3dTypeEnum.o3d_planeXOY;
         private static string thickness_str = "10";
         private static bool leftHandedCS = false;
 
         public static ksObj3dTypeEnum Plan { get => plan; set => plan = value; }
         public static string Thickness_str { get => thickness_str; set => thickness_str = value; }
         public static bool LeftHandedCS { get => leftHandedCS; set => leftHandedCS = value; }
+        public static ksObj3dTypeEnum DirectingObject { get => directingObject; set => directingObject = value; }
     }
 }

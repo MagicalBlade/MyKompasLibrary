@@ -325,35 +325,7 @@ namespace MyKompasLibrary
                 MessageBox.Show("Не верно указана толщина детали!");
                 return;
             }
-            switch (form_CreatPartFromPos.groupBox1.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name)
-            {
-                case "rb_Top":
-                    Data_CreatPartFromPos.Plan = ksObj3dTypeEnum.o3d_planeXOY;
-                    Data_CreatPartFromPos.LeftHandedCS = false;
-                    break;
-                case "tb_Bottom":
-                    Data_CreatPartFromPos.Plan = ksObj3dTypeEnum.o3d_planeXOZ;
-                    Data_CreatPartFromPos.LeftHandedCS = true;
-                    break;
-                case "tb_Front":
-                    Data_CreatPartFromPos.Plan = ksObj3dTypeEnum.o3d_planeYOZ;
-                    Data_CreatPartFromPos.LeftHandedCS = true;
-                    break;
-                case "rb_Backside":
-                    Data_CreatPartFromPos.Plan = ksObj3dTypeEnum.o3d_planeXOZ;
-                    Data_CreatPartFromPos.LeftHandedCS = false;
-                    break;
-                case "rb_Left":
-                    Data_CreatPartFromPos.Plan = ksObj3dTypeEnum.o3d_planeXOZ;
-                    Data_CreatPartFromPos.LeftHandedCS = true;
-                    break;
-                case "tb_Right":
-                    Data_CreatPartFromPos.Plan = ksObj3dTypeEnum.o3d_planeXOZ;
-                    Data_CreatPartFromPos.LeftHandedCS = false;
-                    break;
-                default:
-                    break;
-            }
+           
 
 
 
@@ -365,11 +337,42 @@ namespace MyKompasLibrary
             IModelContainer modelContainer = (IModelContainer)part7;
             ISketchs sketchs = modelContainer.Sketchs;
             Sketch sketch = sketchs.Add();
-            //TODO Запрос у пользователя на какой плоскости выдавливание делать и какое направление или симметрия
             //Выбор плоскости выдавливания
-            sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOX] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOY];
-            sketch.LeftHandedCS = Data_CreatPartFromPos.LeftHandedCS;
-            sketch.Plane = part7.DefaultObject[Data_CreatPartFromPos.Plan] as IPlane3D;
+            switch (form_CreatPartFromPos.groupBox1.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name)
+            {
+                case "rb_Top":
+                    sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOY] as IPlane3D;
+                    sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOX] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOY];
+                    sketch.LeftHandedCS = false;
+                    break;
+                case "tb_Bottom":
+                    sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOZ] as IPlane3D;
+                    sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOX];
+                    sketch.LeftHandedCS = true;
+                    break;
+                case "tb_Front":
+                    sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeYOZ] as IPlane3D;
+                    sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOZ];
+                    sketch.LeftHandedCS = true;
+                    break;
+                case "rb_Backside":
+                    sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOZ] as IPlane3D;
+                    sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOZ];
+                    sketch.LeftHandedCS = false;
+                    break;
+                case "rb_Left":
+                    sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOZ] as IPlane3D;
+                    sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOZ];
+                    sketch.LeftHandedCS = true;
+                    break;
+                case "tb_Right":
+                    sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOZ] as IPlane3D;
+                    sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOZ];
+                    sketch.LeftHandedCS = false;
+                    break;
+                default:
+                    break;
+            }
             part7.Update();
             //Начало формирования эскиза
             IKompasDocument sketch_KD = sketch.BeginEdit();
