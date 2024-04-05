@@ -193,7 +193,6 @@ namespace MyKompasLibrary
         /// </summary>
         private void CreatPartFromPos()
         {
-            bool saveYesNo = true;
             string pathSavePDF = "";
             if (Application.ActiveDocument.Type != KompasAPIObjectTypeEnum.ksObjectDrawingDocument) return;
             IDocuments documents = Application.Documents;
@@ -266,7 +265,7 @@ namespace MyKompasLibrary
             }
             if (!adresess.ContainsKey("3D архив"))
             {
-                saveYesNo = false;
+                MessageBox.Show($"Не найден путь к папке \"3D архив\". Обратитесь к разработчику.");
                 return;
             }
             #endregion
@@ -436,17 +435,11 @@ namespace MyKompasLibrary
                 Application.MessageBoxEx("Не удалось выдавить", "Ошибка", 64);
                 return;
             }
-            if (saveYesNo)
+            kompasDocument3D.SaveAs(pathSavePDF);
+            if (kompasDocument3D.Name == "")
             {
-                kompasDocument3D.SaveAs(pathSavePDF);
-                if (kompasDocument3D.Name == "")
-                {
-                    MessageBox.Show("Не удалось сохранить файл. Файл или открыть или нет прав на его изменение");
-                }
-            }
-            else
-            {
-                Application.MessageBoxEx("Не найдет папка с заказом в 3D", "Ошибка", 64);
+                MessageBox.Show("Не удалось сохранить файл. Файл или открыть или нет прав на его изменение");
+                return;
             }
             Application.MessageBoxEx("Создание детали завершено", "Готово", 64);
         }

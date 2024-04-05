@@ -52,7 +52,7 @@
             // b_Ok
             // 
             this.b_Ok.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.b_Ok.Location = new System.Drawing.Point(82, 203);
+            this.b_Ok.Location = new System.Drawing.Point(50, 203);
             this.b_Ok.Name = "b_Ok";
             this.b_Ok.Size = new System.Drawing.Size(75, 23);
             this.b_Ok.TabIndex = 1;
@@ -62,7 +62,7 @@
             // b_Cancel
             // 
             this.b_Cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.b_Cancel.Location = new System.Drawing.Point(163, 203);
+            this.b_Cancel.Location = new System.Drawing.Point(131, 203);
             this.b_Cancel.Name = "b_Cancel";
             this.b_Cancel.Size = new System.Drawing.Size(75, 23);
             this.b_Cancel.TabIndex = 2;
@@ -71,7 +71,7 @@
             // 
             // tb_Thickness
             // 
-            this.tb_Thickness.Location = new System.Drawing.Point(186, 177);
+            this.tb_Thickness.Location = new System.Drawing.Point(154, 177);
             this.tb_Thickness.Name = "tb_Thickness";
             this.tb_Thickness.Size = new System.Drawing.Size(46, 20);
             this.tb_Thickness.TabIndex = 0;
@@ -79,7 +79,7 @@
             // l_Thickness
             // 
             this.l_Thickness.AutoSize = true;
-            this.l_Thickness.Location = new System.Drawing.Point(89, 181);
+            this.l_Thickness.Location = new System.Drawing.Point(57, 181);
             this.l_Thickness.Name = "l_Thickness";
             this.l_Thickness.Size = new System.Drawing.Size(94, 13);
             this.l_Thickness.TabIndex = 3;
@@ -179,10 +179,11 @@
             this.gb_Direction.Controls.Add(this.rb_Straight);
             this.gb_Direction.Location = new System.Drawing.Point(141, 13);
             this.gb_Direction.Name = "gb_Direction";
-            this.gb_Direction.Size = new System.Drawing.Size(172, 158);
+            this.gb_Direction.Size = new System.Drawing.Size(106, 158);
             this.gb_Direction.TabIndex = 5;
             this.gb_Direction.TabStop = false;
-            this.gb_Direction.Text = "Направление выдавливания";
+            this.gb_Direction.Text = "Направление";
+            this.toolTip1.SetToolTip(this.gb_Direction, "Направление выдавливания эскиза");
             // 
             // rb_Symmetrically
             // 
@@ -227,7 +228,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.b_Cancel;
-            this.ClientSize = new System.Drawing.Size(321, 236);
+            this.ClientSize = new System.Drawing.Size(257, 236);
             this.Controls.Add(this.gb_Direction);
             this.Controls.Add(this.gb_plane);
             this.Controls.Add(this.l_Thickness);
