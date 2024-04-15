@@ -518,25 +518,44 @@ namespace MyKompasLibrary
         // Головная функция библиотеки
         public void ExternalRunCommand([In] short command, [In] short mode, [In, MarshalAs(UnmanagedType.IDispatch)] object kompas_)
         {
-            Kompas = (KompasObject)kompas_;
-            Application = (IApplication)Kompas.ksGetApplication7();
-            ActiveDocument = Application.ActiveDocument;
-            //Вызываем команды
-            switch (command)
+            try
             {
-                case 1: CloseNoSave(); break;
-                case 2: CreatDrawing(); break;
-                case 3: CreatFragment(); break;
-                case 4: CreatPart(); break;
-                case 5: CreatAssemble(); break;
-                case 6: PointCenterCircle(); break; 
-                case 7: CopyNameFromStamp(); break; 
-                case 8: CreatPartFromPos(); break;
-                case 9: TestEvent(); break;
-                
-                
-                case 999: OpenHelp(); break;
+                if (kompas_ == null)
+                {
+                    MessageBox.Show("Не найден Компас");
+                    return;
+                }
+                Kompas = (KompasObject)kompas_;
+                Application = (IApplication)Kompas.ksGetApplication7();
+                ActiveDocument = Application.ActiveDocument;
+                if (ActiveDocument == null || (ActiveDocument.DocumentType != DocumentTypeEnum.ksDocumentDrawing
+                 && ActiveDocument.DocumentType != DocumentTypeEnum.ksDocumentFragment && ActiveDocument.DocumentType != DocumentTypeEnum.ksDocumentPart && ActiveDocument.DocumentType != DocumentTypeEnum.ksDocumentAssembly))
+                {
+                    MessageBox.Show("Документ не активен либо не является чертежом/фрагментом. Возможно был перечитан другой чертеж. Переключитесь на любой другой чертеж и вернитесь назад, должно заработать.");
+                    return;
+                }
+                //Вызываем команды
+                switch (command)
+                {
+                    case 1: CloseNoSave(); break;
+                    case 2: CreatDrawing(); break;
+                    case 3: CreatFragment(); break;
+                    case 4: CreatPart(); break;
+                    case 5: CreatAssemble(); break;
+                    case 6: PointCenterCircle(); break;
+                    case 7: CopyNameFromStamp(); break;
+                    case 8: CreatPartFromPos(); break;
+                    case 9: TestEvent(); break;
+
+
+                    case 999: OpenHelp(); break;
+                }
             }
+            catch (Exception e)
+            {
+                MessageBox.Show($"{e}");
+            }
+
         }
 
 
