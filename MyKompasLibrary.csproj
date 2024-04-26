@@ -64,7 +64,6 @@
   <ItemGroup>
     <Compile Include="Data\Data_CreatPartFromPos.cs" />
     <Compile Include="Data\Excel.cs" />
-    <Compile Include="Event\ApplicationEvent.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Windows\Form_CreatPartFromPos.cs">
