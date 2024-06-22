@@ -444,6 +444,270 @@ namespace MyKompasLibrary
             Application.MessageBoxEx("Создание детали завершено", "Готово", 64);
         }
 
+        /// <summary>
+        /// Создать 3D деталь из деталировки с панелью свойств
+        /// </summary>
+        private void CreatPartFromPos_PropertyTab()
+        {
+            string pathSavePDF = "";
+            if (Application.ActiveDocument.Type != KompasAPIObjectTypeEnum.ksObjectDrawingDocument) return;
+            IDocuments documents = Application.Documents;
+            IKompasDocument kompasDocument = Application.ActiveDocument;
+            IKompasDocument2D1 kompasDocument2D1 = Application.ActiveDocument as IKompasDocument2D1;
+            ksDocument2D ksdocument2D = Kompas.ActiveDocument2D();
+
+            #region Получение толщины и имени позиции из штампа
+            ILayoutSheets layoutSheets = kompasDocument.LayoutSheets;
+            if (layoutSheets == null) return;
+            if (layoutSheets.Count == 0) return;
+            ILayoutSheet layoutSheet = layoutSheets.ItemByNumber[1];
+            // Получение листа в старых версиях чертежа. В них видимо нет возможности получить лист по номеру листа.
+            if (layoutSheet == null)
+            {
+                foreach (ILayoutSheet item in layoutSheets)
+                {
+                    layoutSheet = item;
+                    break;
+                }
+            };
+            IStamp stamp = layoutSheet.Stamp;
+            if (stamp == null) return;
+
+            const string pattern = "[^\\d\\.,-]";
+            string namePos = stamp.Text[2].Str; //Ячейка позиции
+            namePos = Regex.Replace(namePos, pattern, "");
+            namePos = namePos.Trim('.');
+
+            string stampid3 = stamp.Text[3].Str;//Ячейка с толщиной, материалом и т.д.
+            if (stampid3 != "")
+            {
+                string[] profile = stampid3.Split("$dsm; ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                if (profile.Length > 4)
+                {
+                    Data_CreatPartFromPos.Thickness_str = profile[1];
+                }
+            }
+            #endregion
+
+            #region Получание адреса папки 3D
+            ILibraryManager libraryManager = Application.LibraryManager;
+            string pathlibrary = $"{Path.GetDirectoryName(libraryManager.CurrentLibrary.PathName)}"; //Получить путь к папке библиотеки
+            string pathAdressesFolderBZMMK = $"{pathlibrary}\\Resources\\Адреса основных папок БЗММК.txt";
+            if (!File.Exists(pathAdressesFolderBZMMK))
+            {
+                MessageBox.Show("Не найден файл с адресом к папке \"3D\" Обратитесь к разработчику.");
+                return;
+            }
+            string readAdresses = "";
+            using (StreamReader sr = new StreamReader(pathAdressesFolderBZMMK))
+            {
+                readAdresses = sr.ReadToEnd();
+            }
+            if (readAdresses == "")
+            {
+                MessageBox.Show($"Неудалось прочитать файл с адресами папок. Обратитесь к разработчику.");
+                return;
+            }
+            Dictionary<string, string> adresess = new Dictionary<string, string>();
+            foreach (string line in readAdresses.Split('\n'))
+            {
+                string[] temp = line.Split(':').Select(x => x.Trim()).ToArray();
+                if (temp.Length != 2) break;
+                adresess.Add(temp[0], temp[1]);
+            }
+            if (!adresess.ContainsKey("3D"))
+            {
+                MessageBox.Show($"Не найден путь к папке \"3D\". Обратитесь к разработчику.");
+                return;
+            }
+            if (!adresess.ContainsKey("3D архив"))
+            {
+                MessageBox.Show($"Не найден путь к папке \"3D архив\". Обратитесь к разработчику.");
+                return;
+            }
+            #endregion
+
+            #region Создание пути детали и проверка существование файла по этому пути
+            string nameorder = Array.Find(kompasDocument.PathName.Split('\\'), x => x.IndexOf("З.з.№", StringComparison.CurrentCultureIgnoreCase) != -1);
+            string pathFolderSavePDF = "";
+            if (Directory.Exists($"{adresess["3D"]}\\{nameorder}"))
+            {
+                pathFolderSavePDF = $"{adresess["3D"]}\\{nameorder}";
+            }
+            else if (Directory.Exists($"{adresess["3D архив"]}\\{nameorder}"))
+            {
+                pathFolderSavePDF = $"{adresess["3D архив"]}\\{nameorder}";
+            }
+            else
+            {
+                MessageBox.Show($"Не найдена папка заказа в 3D. 3D деталь не сохранена.");
+                return;
+            }
+            pathSavePDF = $"{pathFolderSavePDF}\\2_Деталировка\\{namePos}.m3d";
+            if (File.Exists(pathSavePDF))
+            {
+                if (Kompas.ksYesNo($"Файл с именем {pathSavePDF} уже существует. Продолжить создание? Файл будет заменен!") != 1) return;
+            }
+            #endregion
+
+            #region Создание панели свойств
+            IProcess2D process2D = kompasDocument2D1.LibProcess[ksProcess2DTypeEnum.ksProcess2DPlacement];
+            IProcess process = process2D as IProcess;
+            process.Run(true, true);
+            #endregion
+
+
+            //Получение координат нулевой точки детали
+            double selectX = 0;
+            double selectY = 0;
+            if (ksdocument2D.ksCursor(null, ref selectX, ref selectY, null) != -1) return;
+            //Получаем контур детали который будет передан в 3D деталь
+            ksInertiaParam ksinertiaParam = Kompas.GetParamStruct(83); //Параметры МЦХ
+            int group = ksdocument2D.ksViewGetObjectArea(); //Контур площади
+            if (group == 0)
+            {
+                return;
+            }
+            //Перемещаем группу, за указанную точку, в начало координат
+            ksdocument2D.ksMoveObj(group, -selectX, -selectY);
+            //Копируем группу в буфер обмена
+            ksdocument2D.ksWriteGroupToClip(group, true);
+            //Запуск диалога
+            Form_CreatPartFromPos form_CreatPartFromPos = new Form_CreatPartFromPos();
+            //Задание начальных параметров
+            form_CreatPartFromPos.gb_plane.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Name == $"{Data_CreatPartFromPos.Rb_plane}").Checked = true;
+            form_CreatPartFromPos.gb_Direction.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Name == $"{Data_CreatPartFromPos.Rb_Direction}").Checked = true;
+            form_CreatPartFromPos.tb_Thickness.Text = Data_CreatPartFromPos.Thickness_str;
+            if (form_CreatPartFromPos.ShowDialog() == DialogResult.Cancel)
+            {
+                return;
+            }
+            Data_CreatPartFromPos.Rb_plane = form_CreatPartFromPos.gb_plane.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name;
+            Data_CreatPartFromPos.Rb_Direction = form_CreatPartFromPos.gb_Direction.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name;
+            //Получение толщины детали и приведение к числу
+            Data_CreatPartFromPos.Thickness_str = form_CreatPartFromPos.tb_Thickness.Text;
+            if (!double.TryParse(Data_CreatPartFromPos.Thickness_str, out Data_CreatPartFromPos.Thickness))
+            {
+                MessageBox.Show("Не верно указана толщина детали!");
+                return;
+            }
+            //Создаем 3D деталь
+            IKompasDocument kompasDocumentCreated = documents.AddWithDefaultSettings(DocumentTypeEnum.ksDocumentPart, true);
+            IKompasDocument3D kompasDocument3D = kompasDocumentCreated as IKompasDocument3D;
+            IPart7 part7 = kompasDocument3D.TopPart;
+            part7.Name = namePos;
+            IModelContainer modelContainer = (IModelContainer)part7;
+            ISketchs sketchs = modelContainer.Sketchs;
+            Sketch sketch = sketchs.Add();
+            //Задание плоскости выдавливания
+            switch (form_CreatPartFromPos.gb_plane.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name)
+            {
+                case "rb_Top":
+                    sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOY] as IPlane3D;
+                    sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOX] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOY];
+                    sketch.LeftHandedCS = false;
+                    break;
+                case "rb_Bottom":
+                    sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOZ] as IPlane3D;
+                    sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOX];
+                    sketch.LeftHandedCS = true;
+                    break;
+                case "rb_Front":
+                    sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeYOZ] as IPlane3D;
+                    sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOZ];
+                    sketch.LeftHandedCS = true;
+                    break;
+                case "rb_Backside":
+                    sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOZ] as IPlane3D;
+                    sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOZ];
+                    sketch.LeftHandedCS = false;
+                    break;
+                case "rb_Left":
+                    sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOZ] as IPlane3D;
+                    sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOZ];
+                    sketch.LeftHandedCS = true;
+                    break;
+                case "rb_Right":
+                    sketch.Plane = part7.DefaultObject[ksObj3dTypeEnum.o3d_planeXOZ] as IPlane3D;
+                    sketch.DirectingObject[ksObj3dTypeEnum.o3d_axisOY] = part7.DefaultObject[ksObj3dTypeEnum.o3d_axisOZ];
+                    sketch.LeftHandedCS = false;
+                    break;
+                default:
+                    break;
+            }
+            part7.Update();
+            //Начало формирования эскиза
+            IKompasDocument sketch_KD = sketch.BeginEdit();
+            IKompasDocument2D1 sketch_2D1 = sketch_KD as IKompasDocument2D1;
+            IDrawingGroups drawingGroups = sketch_2D1.DrawingGroups;
+            IDrawingGroup drawingGroup = drawingGroups.Add(true, "");
+            //Считываем из буфера обмена в группу
+            drawingGroup.ReadFromClip(false, false);
+            //Вставляем группу
+            drawingGroup.Store();
+            //Закончили формировать эскиз
+            sketch.EndEdit();
+            sketch.Update();
+            IExtrusions extrusions = modelContainer.Extrusions;
+            IExtrusion extrusion = extrusions.Add(ksObj3dTypeEnum.o3d_bossExtrusion);
+            //Задание направления выдавливания
+            switch (form_CreatPartFromPos.gb_Direction.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name)
+            {
+                case "rb_Straight":
+                    extrusion.Direction = ksDirectionTypeEnum.dtNormal;
+                    if (Data_CreatPartFromPos.Thickness == 0)
+                    {
+                        MessageBox.Show("Не указана толщина. Выдавливание произведено с толщиной равной десяти.");
+                        extrusion.Depth[true] = Data_CreatPartFromPos.Thickness;
+                    }
+                    else
+                    {
+                        extrusion.Depth[true] = Data_CreatPartFromPos.Thickness;
+                    }
+                    break;
+                case "rb_Back":
+                    extrusion.Direction = ksDirectionTypeEnum.dtReverse;
+                    if (Data_CreatPartFromPos.Thickness == 0)
+                    {
+                        MessageBox.Show("Не указана толщина. Выдавливание произведено с толщиной равной десяти.");
+                        extrusion.Depth[false] = Data_CreatPartFromPos.Thickness;
+                    }
+                    else
+                    {
+                        extrusion.Depth[false] = Data_CreatPartFromPos.Thickness;
+                    }
+                    break;
+                case "rb_Symmetrically":
+                    extrusion.Direction = ksDirectionTypeEnum.dtMiddlePlane;
+                    if (Data_CreatPartFromPos.Thickness == 0)
+                    {
+                        MessageBox.Show("Не указана толщина. Выдавливание произведено с толщиной равной десяти.");
+                        extrusion.Depth[true] = Data_CreatPartFromPos.Thickness;
+                    }
+                    else
+                    {
+                        extrusion.Depth[true] = Data_CreatPartFromPos.Thickness;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            extrusion.Name = $"t{Data_CreatPartFromPos.Thickness}";
+            extrusion.Sketch = sketch;
+            if (!extrusion.Update())
+            {
+                Application.MessageBoxEx("Не удалось выдавить", "Ошибка", 64);
+                return;
+            }
+            kompasDocument3D.SaveAs(pathSavePDF);
+            if (kompasDocument3D.Name == "")
+            {
+                MessageBox.Show("Не удалось сохранить файл. Файл или открыть или нет прав на его изменение");
+                return;
+            }
+            Application.MessageBoxEx("Создание детали завершено", "Готово", 64);
+        }
+
         private void OpenRecentDoc()
         {
             IDocuments documents =  Application.Documents;
@@ -550,6 +814,7 @@ namespace MyKompasLibrary
                     case 6: PointCenterCircle(); break;
                     case 7: CopyNameFromStamp(); break;
                     case 8: CreatPartFromPos(); break;
+                    case 9: CreatPartFromPos_PropertyTab(); break;
 
 
                     case 90: TestEvent(); break;
