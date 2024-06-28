@@ -708,62 +708,284 @@ namespace MyKompasLibrary
             Application.MessageBoxEx("Создание детали завершено", "Готово", 64);
         }
 
-        private void OpenRecentDoc()
+        private void TeklaToKompas()
         {
-            IDocuments documents =  Application.Documents;
-        }
-
-        private void TestEvent()
-        {
-            IApplication applicationevent = KompasEvent.ksGetApplication7();
-            ksDocument2D ksDocument2D = KompasEvent.ActiveDocument2D();
-            
-            //Kompas6API5.ksKompasObjectNotify_Event ksKompasObjectNotify = KompasEvent as Kompas6API5.ksKompasObjectNotify_Event;
-            //ksKompasObjectNotify.OpenDocument += OpenDocument;
-
-            //Kompas6API5.ksDocumentFileNotify_Event ksDocumentFileNotify = applicationevent.ActiveDocument as Kompas6API5.ksDocumentFileNotify_Event;
-            //if (ksDocumentFileNotify == null) MessageBox.Show("Не подписался");
-            //ksDocumentFileNotify.SaveDocument += SaveDocument;
-
-
-            IKompasDocument2D kompasDocument2D = (IKompasDocument2D)applicationevent.ActiveDocument;
-            IKompasDocument2D1 kompasDocument2D1 = (IKompasDocument2D1)applicationevent.ActiveDocument;
-            IViewsAndLayersManager viewsAndLayersManager = kompasDocument2D.ViewsAndLayersManager;
-            IViews views = viewsAndLayersManager.Views;
-            IView view = views.ActiveView;
-            IDrawingContainer drawingContainer = view as IDrawingContainer;
-            ILineSegments lineSegments = drawingContainer.LineSegments;
-
+            int styleLine = -1;
+            IKompasDocument2D kompasDocument2D = (IKompasDocument2D)Application.ActiveDocument;
+            ksDocument2D activeDocumentAPI5 = Kompas.ActiveDocument2D();
+            IKompasDocument2D1 kompasDocument2D1 = (IKompasDocument2D1)kompasDocument2D;
             ISelectionManager selectionManager = kompasDocument2D1.SelectionManager;
-            object select = selectionManager.SelectedObjects;
+            dynamic selected = selectionManager.SelectedObjects;
 
-            //ksDrawingObjectNotify_Event ksDrawingObjectNotify_Event = select as ksDrawingObjectNotify_Event;
-            //if(ksDrawingObjectNotify_Event == null) MessageBox.Show("Не подписался");
-            //ksDrawingObjectNotify_Event.Delete += DeleteEvent;
+            IStylesManager stylesManager = kompasDocument2D as IStylesManager;
+            IStyles styles = stylesManager.CurvesStyles;
 
-            //ksObject2DNotify_Event ksObject2DNotify = ksDocument2D.GetObject2DNotify(0) as ksObject2DNotify_Event;
-            //ksObject2DNotify.BeginDelete += BeginDelete;
-            //applicationevent.ExecuteKompasCommand((int)ProcessTypeEnum.prPoint, true);
-            ksProcess2DTypeEnum ksProcess2DTypeEnum = (ksProcess2DTypeEnum)ProcessTypeEnum.prLineSeg;
-            MessageBox.Show($"{ksProcess2DTypeEnum}");
+            activeDocumentAPI5.ksUndoContainer(true);
+            if (selected is object[])
+            {
+                foreach (var item in selected)
+                {
+                    if (item is IDrawingObject1 drawingobject1)
+                    {
+                        IDrawingObject drawingobject = drawingobject1 as IDrawingObject;
+                        if (drawingobject1.IsGeometryObject)
+                        {
+                            switch (drawingobject.Type)
+                            {
+                                case KompasAPIObjectTypeEnum.ksObjectArc:
+                                    {
+                                        IArc temp = (IArc)drawingobject;
+                                        temp.Style = GetTypeLine(temp.Style);
+                                        temp.Update();
+                                        break;
+                                    }
+                                case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectBeziers:
+                                    {
+                                        IBezier temp = (IBezier)drawingobject;
+                                        temp.Style = GetTypeLine(temp.Style);
+                                        temp.Update();
+                                        break;
+                                    }
+                                case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectCircle:
+                                    {
+                                        ICircle temp = (ICircle)drawingobject;
+                                        temp.Style = GetTypeLine(temp.Style);
+                                        temp.Update();
+                                        break;
+                                    }
+                                case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectConicCurve:
+                                    {
+                                        IConicCurve temp = (IConicCurve)drawingobject;
+                                        temp.Style = GetTypeLine(temp.Style);
+                                        temp.Update();
+                                        break;
+                                    }
+                                case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectDrawingContour:
+                                    {
+                                        IDrawingContour temp = (IDrawingContour)drawingobject;
+                                        temp.Style = GetTypeLine(temp.Style);
+                                        temp.Update();
+                                        break;
+                                    }
+                                case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectEllipse:
+                                    {
+                                        IEllipse temp = (IEllipse)drawingobject;
+                                        temp.Style = GetTypeLine(temp.Style);
+                                        temp.Update();
+                                        break;
+                                    }
+                                case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectEllipseArc:
+                                    {
+                                        IEllipseArc temp = (IEllipseArc)drawingobject;
+                                        temp.Style = GetTypeLine(temp.Style);
+                                        temp.Update();
+                                        break;
+                                    }
+                                case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectEquidistant:
+                                    {
+                                        IEquidistant temp = (IEquidistant)drawingobject;
+                                        temp.Style = GetTypeLine(temp.Style);
+                                        temp.Update();
+                                        break;
+                                    }
+                                case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectLineSegment:
+                                    {
+                                        ILineSegment temp = (ILineSegment)drawingobject;
+                                        temp.Style = GetTypeLine(temp.Style);
+                                        temp.Update();
+                                        break;
+                                    }
+                                case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectNurbs:
+                                    {
+                                        INurbs temp = (INurbs)drawingobject;
+                                        temp.Style = GetTypeLine(temp.Style);
+                                        temp.Update();
+                                        break;
+                                    }
+                                case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectPolyLine2D:
+                                    {
+                                        IPolyLine2D temp = (IPolyLine2D)drawingobject;
+                                        temp.Style = GetTypeLine(temp.Style);
+                                        temp.Update();
+                                        break;
+                                    }
+                                case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectRectangle:
+                                    {
+                                        IRectangle temp = (IRectangle)drawingobject;
+                                        temp.Style = GetTypeLine(temp.Style);
+                                        temp.Update();
+                                        break;
+                                    }
+                                case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectRegularPolygon:
+                                    {
+                                        IRegularPolygon temp = (IRegularPolygon)drawingobject;
+                                        temp.Style = GetTypeLine(temp.Style);
+                                        temp.Update();
+                                        break;
+                                    }
+                            }
+                        }
+                    }
+                }
+            }
+            else if (selected == null)
+            {
+                Application.MessageBoxEx("Выберите элемент/элементы", "Ошибка", 64);
+                return;
+            }
+            else
+            {
+                if (selected is IDrawingObject1 drawingobject1)
+                {
+                    IDrawingObject drawingobject = drawingobject1 as IDrawingObject;
+                    if (drawingobject1.IsGeometryObject)
+                    {
+                        switch (drawingobject.Type)
+                        {
+                            case KompasAPIObjectTypeEnum.ksObjectArc:
+                                {
+                                    IArc temp = (IArc)drawingobject;
+                                    styleLine = temp.Style;
+                                    break;
+                                }
+                            case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectBeziers:
+                                {
+                                    IBezier temp = (IBezier)drawingobject;
+                                    styleLine = temp.Style;
+                                    break;
+                                }
+                            case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectCircle:
+                                {
+                                    ICircle temp = (ICircle)drawingobject;
+                                    styleLine = temp.Style;
+                                    break;
+                                }
+                            case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectConicCurve:
+                                {
+                                    IConicCurve temp = (IConicCurve)drawingobject;
+                                    styleLine = temp.Style;
+                                    break;
+                                }
+                            case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectDrawingContour:
+                                {
+                                    IDrawingContour temp = (IDrawingContour)drawingobject;
+                                    styleLine = temp.Style;
+                                    break;
+                                }
+                            case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectEllipse:
+                                {
+                                    IEllipse temp = (IEllipse)drawingobject;
+                                    styleLine = temp.Style;
+                                    break;
+                                }
+                            case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectEllipseArc:
+                                {
+                                    IEllipseArc temp = (IEllipseArc)drawingobject;
+                                    styleLine = temp.Style;
+                                    break;
+                                }
+                            case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectEquidistant:
+                                {
+                                    IEquidistant temp = (IEquidistant)drawingobject;
+                                    styleLine = temp.Style;
+                                    break;
+                                }
+                            case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectLineSegment:
+                                {
+                                    ILineSegment temp = (ILineSegment)drawingobject;
+                                    styleLine = temp.Style;
+                                    break;
+                                }
+                            case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectNurbs:
+                                {
+                                    INurbs temp = (INurbs)drawingobject;
+                                    styleLine = temp.Style;
+                                    break;
+                                }
+                            case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectPolyLine2D:
+                                {
+                                    IPolyLine2D temp = (IPolyLine2D)drawingobject;
+                                    styleLine = temp.Style;
+                                    break;
+                                }
+                            case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectRectangle:
+                                {
+                                    IRectangle temp = (IRectangle)drawingobject;
+                                    styleLine = temp.Style;
+                                    break;
+                                }
+                            case Kompas6Constants.KompasAPIObjectTypeEnum.ksObjectRegularPolygon:
+                                {
+                                    IRegularPolygon temp = (IRegularPolygon)drawingobject;
+                                    styleLine = temp.Style;
+                                    break;
+                                }
+                        }
+                    }
+                }
+                MessageBox.Show($"{styleLine}");
+                IStyle style1 = styles.StyleByApiId[styleLine];
+                Clipboard.SetText($"{style1?.Name}");
+            }
+            activeDocumentAPI5.ksUndoContainer(false);
 
-            IProcess2D process2D = kompasDocument2D1.LibProcess[ksProcess2DTypeEnum.ksProcess2DPlacement];
-
-
-
-            IProcess process = process2D as IProcess;
-            //IProcessParam processParam = applicationevent.CreateProcessParam();
-            //ksProcess2DNotify_Event ksProcess2DNotify_Event = process2D as ksProcess2DNotify_Event;
-            //if (ksProcess2DNotify_Event == null) MessageBox.Show("Не подписался");
-            //ksProcess2DNotify_Event.Stop += RunEvent;
-            process.Update();
-            MessageBox.Show($"{process.Caption}");
-            process.Run(true, true);
-
-            MessageBox.Show("Подписался");
-            
-
+            int GetTypeLine(int typeTekla)
+            {
+                int result = typeTekla;
+                IStyle style = styles.StyleByApiId[typeTekla];
+                //Есть две библиотеки стилей: стандартная и документа. Стили которые необходимо заменить на стандартные получаются из IKompasDocument
+                //а стандартные из IApplication. В данном при попытке получить стандартный стиль из styles вернется null.
+                switch (style?.Name)
+                {
+                    case "Continuous_RGB_0_0_255_THICK_0.18":
+                        result = 1;//Основная линия
+                        break;
+                    #region Тонкие линии
+                    case "Continuous_RGB_0_0_0_THICK_0.18":
+                        result = 2;
+                        break;
+                    case "Continuous_RGB_127_0_31_THICK_0.18":
+                        result = 2;
+                        break;
+                    case "Continuous_RGB_0_127_0_THICK_0.18":
+                        result = 2;
+                        break;
+                    case "Continuous_RGB_0_255_255_THICK_0.18":
+                        result = 2;
+                        break;
+                    case "Continuous_RGB_0_255_0_THICK_0.18":
+                        result = 2;
+                        break;
+                    case "POLYLINE_STYLE_0.18_RGB_0_127_0":
+                        result = 2;
+                        break;
+                    #endregion
+                        //Осевая линия
+                    case "DXK_LINE_DOT3_RGB_0_255_255_SC_1_THICK_0.18":
+                        result = 3;
+                        break;
+                    #region Штриховая линия
+                    case "DXK_LINE_DOT2_RGB_0_255_255_SC_1_THICK_0.18":
+                        result = 4;
+                        break;
+                    case "DXK_LINE_DOT1_RGB_0_255_0_SC_1_THICK_0.18":
+                        result = 4;
+                        break;
+                    case "DXK_LINE_DOT2_RGB_0_255_0_SC_1_THICK_0.18":
+                        result = 4;
+                        break;
+                    case "DXK_LINE_DOT2_RGB_0_0_0_SC_1_THICK_0.18":
+                        result = 4;
+                        break;
+                    #endregion
+                    default:
+                        break; 
+                }
+                return result;
+            }
+            Application.MessageBoxEx("Стили заменены", "Готово", 64);
         }
+
 
 
         /// <summary>
@@ -815,9 +1037,9 @@ namespace MyKompasLibrary
                     case 7: CopyNameFromStamp(); break;
                     case 8: CreatPartFromPos(); break;
                     case 9: CreatPartFromPos_PropertyTab(); break;
+                    case 10: TeklaToKompas(); break;
 
 
-                    case 90: TestEvent(); break;
                     case 999: OpenHelp(); break;
                 }
             }
