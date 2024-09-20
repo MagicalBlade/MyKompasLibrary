@@ -22,9 +22,7 @@ namespace MyKompasLibrary
     public class Main
     {
         KompasObject Kompas;
-        KompasObject KompasEvent;
         IApplication Application;
-        IApplication ApplicationEvent;
         IKompasDocument ActiveDocument;
         // Имя библиотеки
         [return: MarshalAs(UnmanagedType.BStr)]
@@ -986,6 +984,8 @@ namespace MyKompasLibrary
             Application.MessageBoxEx("Стили заменены", "Готово", 64);
         }
 
+        
+
 
 
         /// <summary>
@@ -1039,7 +1039,6 @@ namespace MyKompasLibrary
                     case 9: CreatPartFromPos_PropertyTab(); break;
                     case 10: TeklaToKompas(); break;
 
-
                     case 999: OpenHelp(); break;
                 }
             }
@@ -1056,65 +1055,17 @@ namespace MyKompasLibrary
         {
             return Assembly.GetExecutingAssembly().Location;
         }
-        public bool LibInterfaceNotifyEntry(object kompas_)
-        {
-            KompasEvent = (KompasObject)kompas_;
-            ApplicationEvent = KompasEvent.ksGetApplication7();
-            //KompasAPI7.ksKompasObjectNotify_Event ksKompasObjectNotify = ApplicationEvent as KompasAPI7.ksKompasObjectNotify_Event;
-            //ksKompasObjectNotify.ApplicationDestroy += ApplicationDestroy;
-            //ksKompasObjectNotify.OpenDocument += OpenDocument;
-            return true;
-        }
-
-        public string GetHelpFile()
-        {
-            if (File.Exists("c:\\Program Files\\ASCON\\KOMPAS-3D v20\\Libs\\MyKompasLibrary\\Help\\MyKompasLibrary.chm"))
-            {
-                return "c:\\Program Files\\ASCON\\KOMPAS-3D v20\\Libs\\MyKompasLibrary\\Help\\MyKompasLibrary.chm";
-            }
-            else
-            {
-                return "";
-            }
-        }
-
-        #region Обработка событий
-
-        public bool ApplicationDestroy()
-        {
-            MessageBox.Show($"Попался");
-            KompasAPI7.ksKompasObjectNotify_Event ksKompasObjectNotify = ApplicationEvent as KompasAPI7.ksKompasObjectNotify_Event;
-            ksKompasObjectNotify.ApplicationDestroy -= ApplicationDestroy;
-            return true;
-        }
-
-
-        public bool OpenDocument(object newDoc, int docType)
-        {
-            MessageBox.Show("Открыт документ");
-            KompasAPI7.ksKompasObjectNotify_Event ksKompasObjectNotify = ApplicationEvent as KompasAPI7.ksKompasObjectNotify_Event;
-            if (newDoc is IKompasDocument kompasDocument)
-            {
-                KompasAPI7.ksDocumentFileNotify_Event ksDocumentFileNotify_Event = kompasDocument as KompasAPI7.ksDocumentFileNotify_Event;
-                //ksDocumentFileNotify_Event.CloseDocument += CloseDocument;
-            }
-            ksKompasObjectNotify.OpenDocument -= OpenDocument;
-            return true;
-        }
-
-        //public bool CloseDocument()
+        //public bool LibInterfaceNotifyEntry(object kompas_)
         //{
-        //    MessageBox.Show("Открыт документ");
-        //    KompasAPI7.ksKompasObjectNotify_Event ksKompasObjectNotify = ApplicationEvent as KompasAPI7.ksKompasObjectNotify_Event;
-        //    if (newDoc is IKompasDocument kompasDocument)
-        //    {
-        //        KompasAPI7.ksDocumentFileNotify_Event ksDocumentFileNotify_Event = kompasDocument as KompasAPI7.ksDocumentFileNotify_Event;
-        //        ksDocumentFileNotify_Event.CloseDocument -= CloseDocument;
-        //    }
-        //    ksKompasObjectNotify.OpenDocument -= OpenDocument;
+        //    KompasEvent = (KompasObject)kompas_;
+        //    ApplicationEvent = KompasEvent.ksGetApplication7();
+        //    //KompasAPI7.ksKompasObjectNotify_Event ksKompasObjectNotify = ApplicationEvent as KompasAPI7.ksKompasObjectNotify_Event;
+        //    //ksKompasObjectNotify.ApplicationDestroy += ApplicationDestroy;
+        //    //ksKompasObjectNotify.OpenDocument += OpenDocument;
         //    return true;
         //}
-        #endregion
+
+        
 
 
         public int ExternalGetToolBarId(short barType, short index)
