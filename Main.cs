@@ -984,7 +984,30 @@ namespace MyKompasLibrary
             Application.MessageBoxEx("Стили заменены", "Готово", 64);
         }
 
-        
+        /// <summary>
+        /// Запись отклонений
+        /// </summary>
+        private void WriteTolerance()
+        {
+            IKompasDocument2D1 kompasDocument2D1 = (IKompasDocument2D1)ActiveDocument;
+            ISelectionManager selectionManager = kompasDocument2D1.SelectionManager;
+            dynamic selectdynamic = selectionManager.SelectedObjects;
+            if (selectdynamic == null) return;
+            if (selectdynamic is object[]) return;
+            IKompasAPIObject kompasobject = selectdynamic as IKompasAPIObject;
+            if (kompasobject.Type != KompasAPIObjectTypeEnum.ksObjectLineDimension) return;
+            ILineDimension lineDimension = kompasobject as ILineDimension;
+            IDimensionText dimensionText = lineDimension as IDimensionText;
+            if (dimensionText.TextUnder.Str == "") return;
+            if (!double.TryParse(dimensionText.TextUnder.Str, out double under))
+            {
+                Application.MessageBoxEx("Не получилось преобразовать нижний текст","Ошибка", 64);
+                return;
+            }
+            double tolerance = Math.Round(under - dimensionText.NominalValue);
+            dimensionText.Suffix.Str = $"({tolerance})";
+            lineDimension.Update();
+        }   
 
 
 
@@ -1038,6 +1061,7 @@ namespace MyKompasLibrary
                     case 8: CreatPartFromPos(); break;
                     case 9: CreatPartFromPos_PropertyTab(); break;
                     case 10: TeklaToKompas(); break;
+                    case 11: WriteTolerance(); break;
 
                     case 999: OpenHelp(); break;
                 }
