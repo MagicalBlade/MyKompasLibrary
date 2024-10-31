@@ -1004,8 +1004,13 @@ namespace MyKompasLibrary
                 Application.MessageBoxEx("Не получилось преобразовать нижний текст","Ошибка", 64);
                 return;
             }
-            double tolerance = Math.Round(under - dimensionText.NominalValue);
-            dimensionText.Suffix.Str = $"({tolerance})";
+            if (!double.TryParse(dimensionText.NominalText.Str, out double nominal))
+            {
+                Application.MessageBoxEx("Не получилось преобразовать текст размера", "Ошибка", 64);
+                return;
+            }
+            double tolerance = Math.Round(under - nominal);
+            dimensionText.Suffix.Str = $"({(nominal < 0 ? "" : "+")}{tolerance})";
             lineDimension.Update();
         }   
 
