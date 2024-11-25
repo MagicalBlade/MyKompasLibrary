@@ -985,9 +985,9 @@ namespace MyKompasLibrary
         }
 
         /// <summary>
-        /// Запись отклонений
+        /// Запись отклонений в размер
         /// </summary>
-        private void WriteTolerance()
+        private void WriteToleranceDimention()
         {
             IKompasDocument2D1 kompasDocument2D1 = (IKompasDocument2D1)ActiveDocument;
             ISelectionManager selectionManager = kompasDocument2D1.SelectionManager;
@@ -1012,8 +1012,32 @@ namespace MyKompasLibrary
             double tolerance = Math.Round(under - nominal);
             dimensionText.Suffix.Str = $"({(nominal < 0 ? "" : "+")}{tolerance})";
             lineDimension.Update();
-        }   
+        }
 
+
+        /// <summary>
+        /// Запись отклонений в выноску
+        /// </summary>
+        private void WriteToleranceLeader()
+        {
+            IKompasDocument2D1 kompasDocument2D1 = (IKompasDocument2D1)ActiveDocument;
+            ISelectionManager selectionManager = kompasDocument2D1.SelectionManager;
+            dynamic selectdynamic = selectionManager.SelectedObjects;
+            if (selectdynamic == null) return;
+            if (!(selectdynamic is object[])) return;
+            if(selectdynamic.Length != 2) return;
+
+            ILeader leader = selectdynamic[0] as ILeader;
+            ILeader leader1 = selectdynamic[1] as ILeader;
+            if (leader == null || leader1 == null) return;
+            if(!double.TryParse(leader1.TextOnShelf.Str, out double on)) return;
+            if(!double.TryParse(leader1.TextUnderShelf.Str, out double under)) return;
+            double tolerance = under - on;
+            leader.TextOnShelf.Str = tolerance.ToString();
+            IBaseLeader baseLeader = leader as IBaseLeader;
+            baseLeader.Update();
+            
+        }
 
 
         /// <summary>
@@ -1066,7 +1090,8 @@ namespace MyKompasLibrary
                     case 8: CreatPartFromPos(); break;
                     case 9: CreatPartFromPos_PropertyTab(); break;
                     case 10: TeklaToKompas(); break;
-                    case 11: WriteTolerance(); break;
+                    case 11: WriteToleranceDimention(); break;
+                    case 12: WriteToleranceLeader(); break;
 
                     case 999: OpenHelp(); break;
                 }
