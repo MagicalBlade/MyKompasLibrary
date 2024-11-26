@@ -1024,14 +1024,35 @@ namespace MyKompasLibrary
             ISelectionManager selectionManager = kompasDocument2D1.SelectionManager;
             dynamic selectdynamic = selectionManager.SelectedObjects;
             if (selectdynamic == null) return;
-            if (!(selectdynamic is object[])) return;
-            if(selectdynamic.Length != 2) return;
+            if (!(selectdynamic is object[])) {
+                Application.MessageBoxEx("Выделите две выноски","", 64);
+                return;
+            }
+            if(selectdynamic.Length != 2)
+            {
+                Application.MessageBoxEx("Выделите только две выноски!", "", 64);
+                return;
+            }
 
             ILeader leader = selectdynamic[0] as ILeader;
             ILeader leader1 = selectdynamic[1] as ILeader;
-            if (leader == null || leader1 == null) return;
-            if(!double.TryParse(leader1.TextOnShelf.Str, out double on)) return;
-            if(!double.TryParse(leader1.TextUnderShelf.Str, out double under)) return;
+            if (leader == null || leader1 == null)
+            {
+                Application.MessageBoxEx("Выделите линии выноски","", 64);
+                return;
+            }
+
+            if (!double.TryParse(leader1.TextOnShelf.Str, out double on))
+            {
+                Application.MessageBoxEx("Не получилось перести в число текст над полкой", "", 64);
+                return;
+            }
+
+            if (!double.TryParse(leader1.TextUnderShelf.Str, out double under))
+            {
+                Application.MessageBoxEx("Не получилось перести в число текст под полкой", "", 64);
+                return;
+            }
             double tolerance = under - on;
             leader.TextOnShelf.Str = tolerance.ToString();
             IBaseLeader baseLeader = leader as IBaseLeader;
