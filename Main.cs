@@ -1010,7 +1010,7 @@ namespace MyKompasLibrary
                 return;
             }
             double tolerance = Math.Round(under - nominal);
-            dimensionText.Suffix.Str = $"({(nominal < 0 ? "" : "+")}{tolerance})";
+            dimensionText.Suffix.Str = $"({(tolerance < 0 ? "" : "+")}{tolerance})";
             lineDimension.Update();
         }
 
