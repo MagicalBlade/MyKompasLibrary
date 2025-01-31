@@ -16,6 +16,8 @@ using System.Diagnostics;
 using Kompas6Constants3D;
 using System.Text.RegularExpressions;
 using MyKompasLibrary.Windows;
+using System.Security.AccessControl;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace MyKompasLibrary
 {
@@ -312,6 +314,8 @@ namespace MyKompasLibrary
             form_CreatPartFromPos.gb_plane.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Name == $"{Data_CreatPartFromPos.Rb_plane}").Checked = true;
             form_CreatPartFromPos.gb_Direction.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Name == $"{Data_CreatPartFromPos.Rb_Direction}").Checked = true;
             form_CreatPartFromPos.tb_Thickness.Text = Data_CreatPartFromPos.Thickness_str;
+            form_CreatPartFromPos.cb_closeDrawing.Checked = Data_CreatPartFromPos.CloseDrawing;
+            form_CreatPartFromPos.cb_close3D.Checked = Data_CreatPartFromPos.Close3D;
             if (form_CreatPartFromPos.ShowDialog() == DialogResult.Cancel)
             {
                 return;
@@ -325,6 +329,8 @@ namespace MyKompasLibrary
                 MessageBox.Show("Не верно указана толщина детали!");
                 return;
             }
+            Data_CreatPartFromPos.CloseDrawing = form_CreatPartFromPos.cb_closeDrawing.Checked;
+            Data_CreatPartFromPos.Close3D= form_CreatPartFromPos.cb_close3D.Checked;
             //Создаем 3D деталь
             IKompasDocument kompasDocumentCreated = documents.AddWithDefaultSettings(DocumentTypeEnum.ksDocumentPart, true);
             IKompasDocument3D kompasDocument3D = kompasDocumentCreated as IKompasDocument3D;
@@ -438,6 +444,14 @@ namespace MyKompasLibrary
             {
                 MessageBox.Show("Не удалось сохранить файл. Файл или открыть или нет прав на его изменение");
                 return;
+            }
+            if (form_CreatPartFromPos.cb_close3D.Checked)
+            {
+                kompasDocument3D.Close(DocumentCloseOptions.kdSaveChanges);
+            }
+            if (form_CreatPartFromPos.cb_closeDrawing.Checked)
+            {
+                kompasDocument.Close(DocumentCloseOptions.kdDoNotSaveChanges);
             }
             Application.MessageBoxEx("Создание детали завершено", "Готово", 64);
         }
@@ -1060,6 +1074,27 @@ namespace MyKompasLibrary
             
         }
 
+        private void TestSave()
+        {
+            List<DateTime> dateTimes = new List<DateTime>();
+            IKompasDocument kompasDocument = ActiveDocument;
+            int vals = 0;
+            Kompas.ksReadInt("Количество сохранений", 100, 0 , 1000000, ref vals);
+            for (int i = 0; i < vals; i++)
+            {
+                System.Threading.Thread.Sleep(1000);
+                dateTimes.Add(DateTime.Now);
+                kompasDocument.Save();
+            }
+            using (StreamWriter writer = new StreamWriter("D:\\4.txt", false))
+            {
+                foreach (DateTime item in dateTimes)
+                {
+                    writer.WriteLine(item.ToLongTimeString());
+                }
+            }
+        }
+
 
         /// <summary>
         /// Открытие файла помощи
@@ -1113,6 +1148,7 @@ namespace MyKompasLibrary
                     case 10: TeklaToKompas(); break;
                     case 11: WriteToleranceDimention(); break;
                     case 12: WriteToleranceLeader(); break;
+                    case 13: TestSave(); break;
 
                     case 999: OpenHelp(); break;
                 }

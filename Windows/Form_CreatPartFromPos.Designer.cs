@@ -45,8 +45,12 @@
             this.rb_Back = new System.Windows.Forms.RadioButton();
             this.rb_Straight = new System.Windows.Forms.RadioButton();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.cb_closeDrawing = new System.Windows.Forms.CheckBox();
+            this.cb_close3D = new System.Windows.Forms.CheckBox();
             this.gb_plane.SuspendLayout();
             this.gb_Direction.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // b_Ok
@@ -222,13 +226,45 @@
             this.toolTip1.SetToolTip(this.rb_Straight, "Горячая клавиша A");
             this.rb_Straight.UseVisualStyleBackColor = true;
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.cb_close3D);
+            this.groupBox1.Controls.Add(this.cb_closeDrawing);
+            this.groupBox1.Location = new System.Drawing.Point(254, 13);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(147, 158);
+            this.groupBox1.TabIndex = 6;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Настройки";
+            // 
+            // cb_closeDrawing
+            // 
+            this.cb_closeDrawing.AutoSize = true;
+            this.cb_closeDrawing.Location = new System.Drawing.Point(7, 20);
+            this.cb_closeDrawing.Name = "cb_closeDrawing";
+            this.cb_closeDrawing.Size = new System.Drawing.Size(109, 17);
+            this.cb_closeDrawing.TabIndex = 0;
+            this.cb_closeDrawing.Text = "Закрыть чертёж";
+            this.cb_closeDrawing.UseVisualStyleBackColor = true;
+            // 
+            // cb_close3D
+            // 
+            this.cb_close3D.AutoSize = true;
+            this.cb_close3D.Location = new System.Drawing.Point(7, 43);
+            this.cb_close3D.Name = "cb_close3D";
+            this.cb_close3D.Size = new System.Drawing.Size(87, 17);
+            this.cb_close3D.TabIndex = 0;
+            this.cb_close3D.Text = "Закрыть 3D";
+            this.cb_close3D.UseVisualStyleBackColor = true;
+            // 
             // Form_CreatPartFromPos
             // 
             this.AcceptButton = this.b_Ok;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.b_Cancel;
-            this.ClientSize = new System.Drawing.Size(257, 236);
+            this.ClientSize = new System.Drawing.Size(412, 236);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.gb_Direction);
             this.Controls.Add(this.gb_plane);
             this.Controls.Add(this.l_Thickness);
@@ -246,6 +282,8 @@
             this.gb_plane.PerformLayout();
             this.gb_Direction.ResumeLayout(false);
             this.gb_Direction.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -269,5 +307,8 @@
         internal System.Windows.Forms.GroupBox gb_Direction;
         internal System.Windows.Forms.RadioButton rb_Right;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.GroupBox groupBox1;
+        internal System.Windows.Forms.CheckBox cb_close3D;
+        internal System.Windows.Forms.CheckBox cb_closeDrawing;
     }
 }
