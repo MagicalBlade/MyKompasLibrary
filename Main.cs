@@ -1039,12 +1039,12 @@ namespace MyKompasLibrary
             dynamic selectdynamic = selectionManager.SelectedObjects;
             if (selectdynamic == null) return;
             if (!(selectdynamic is object[])) {
-                Application.MessageBoxEx("Выделите две выноски","", 64);
+                MessageBox.Show("Выделите две выноски");
                 return;
             }
             if(selectdynamic.Length != 2)
             {
-                Application.MessageBoxEx("Выделите только две выноски!", "", 64);
+                MessageBox.Show("Выделите только две выноски!");
                 return;
             }
 
@@ -1052,19 +1052,23 @@ namespace MyKompasLibrary
             ILeader leader1 = selectdynamic[1] as ILeader;
             if (leader == null || leader1 == null)
             {
-                Application.MessageBoxEx("Выделите линии выноски","", 64);
+                MessageBox.Show("Выделите линии выноски");
                 return;
             }
-
+            if (leader.TextUnderShelf.Str != "")
+            {
+                MessageBox.Show("Проверьте порядок выделения. У первой линии выноски под полкой должно быть пусто.");
+                return;
+            }
             if (!double.TryParse(leader1.TextOnShelf.Str, out double on))
             {
-                Application.MessageBoxEx("Не получилось перести в число текст над полкой", "", 64);
+                MessageBox.Show("Не получилось перести в число текст над полкой");
                 return;
             }
 
             if (!double.TryParse(leader1.TextUnderShelf.Str, out double under))
             {
-                Application.MessageBoxEx("Не получилось перести в число текст под полкой", "", 64);
+                MessageBox.Show("Не получилось перести в число текст под полкой");
                 return;
             }
             double tolerance = under - on;
@@ -1072,6 +1076,56 @@ namespace MyKompasLibrary
             IBaseLeader baseLeader = leader as IBaseLeader;
             baseLeader.Update();
             
+        }
+
+        /// <summary>
+        /// Запись отклонений в выноску под полку
+        /// </summary>
+        private void WriteToleranceLeaderUnder()
+        {
+            IKompasDocument2D1 kompasDocument2D1 = (IKompasDocument2D1)ActiveDocument;
+            ISelectionManager selectionManager = kompasDocument2D1.SelectionManager;
+            dynamic selectdynamic = selectionManager.SelectedObjects;
+            if (selectdynamic == null) return;
+            if (!(selectdynamic is object[]))
+            {
+                MessageBox.Show("Выделите две выноски");
+                return;
+            }
+            if (selectdynamic.Length != 2)
+            {
+                MessageBox.Show("Выделите только две выноски!");
+                return;
+            }
+
+            ILeader leader = selectdynamic[0] as ILeader;
+            ILeader leader1 = selectdynamic[1] as ILeader;
+            if (leader == null || leader1 == null)
+            {
+                MessageBox.Show("Выделите линии выноски");
+                return;
+            }
+            if (leader1.TextUnderShelf.Str != "")
+            {
+                MessageBox.Show("Проверьте порядок выделения. У второй линии выноски под полкой должно быть пусто.");
+                return;
+            }
+            if (!double.TryParse(leader.TextOnShelf.Str, out double on))
+            {
+                MessageBox.Show("Не получилось перести в число текст над полкой первой линии выноски");
+                return;
+            }
+
+            if (!double.TryParse(leader1.TextOnShelf.Str, out double on1))
+            {
+                MessageBox.Show("Не получилось перести в число текст над полкой второй линии выноски");
+                return;
+            }
+            double tolerance = on + on1;
+            leader.TextUnderShelf.Str = tolerance.ToString();
+            IBaseLeader baseLeader = leader as IBaseLeader;
+            baseLeader.Update();
+
         }
 
         private void TestSave()
@@ -1148,7 +1202,8 @@ namespace MyKompasLibrary
                     case 10: TeklaToKompas(); break;
                     case 11: WriteToleranceDimention(); break;
                     case 12: WriteToleranceLeader(); break;
-                    case 13: TestSave(); break;
+                    case 13: WriteToleranceLeaderUnder(); break;
+                    case 14: TestSave(); break;
 
                     case 999: OpenHelp(); break;
                 }
