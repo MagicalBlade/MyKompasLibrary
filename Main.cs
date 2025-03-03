@@ -1055,10 +1055,17 @@ namespace MyKompasLibrary
                 MessageBox.Show("Выделите линии выноски");
                 return;
             }
-            if (leader.TextUnderShelf.Str != "")
+            if ((leader.TextUnderShelf.Str != "" && leader1.TextUnderShelf.Str != "") || (leader.TextUnderShelf.Str == "" && leader1.TextUnderShelf.Str == ""))
             {
-                MessageBox.Show("Проверьте порядок выделения. У первой линии выноски под полкой должно быть пусто.");
+                MessageBox.Show("Проверьте линии выноски. У одной должно быть пусто под полкой и над полкой должны быть данные." +
+                    " У второй должны быть данные под полкой и над полкой.");
                 return;
+            }
+            if (leader.TextUnderShelf.Str != "" && leader1.TextUnderShelf.Str == "")
+            {
+                (leader, leader1) = (leader1, leader);
+                //MessageBox.Show("Проверьте порядок выделения. У первой линии выноски под полкой должно быть пусто.");
+                //return;
             }
             if (!double.TryParse(leader1.TextOnShelf.Str, out double on))
             {
@@ -1105,10 +1112,17 @@ namespace MyKompasLibrary
                 MessageBox.Show("Выделите линии выноски");
                 return;
             }
+            if ((leader.TextUnderShelf.Str != "" && leader1.TextUnderShelf.Str != "") || (leader.TextUnderShelf.Str == "" && leader1.TextUnderShelf.Str == ""))
+            {
+                MessageBox.Show("Проверьте линии выноски. У одной должно быть пусто под полкой и над полкой должны быть данные." +
+                    " У второй должны быть данные под полкой и над полкой.");
+                return;
+            }
             if (leader1.TextUnderShelf.Str != "")
             {
-                MessageBox.Show("Проверьте порядок выделения. У второй линии выноски под полкой должно быть пусто.");
-                return;
+                (leader, leader1) = (leader1, leader);
+                //MessageBox.Show("Проверьте порядок выделения. У второй линии выноски под полкой должно быть пусто.");
+                //return;
             }
             if (!double.TryParse(leader.TextOnShelf.Str, out double on))
             {
