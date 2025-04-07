@@ -38,8 +38,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.cb_Rounding = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.nud_TextUnder)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_Suffix)).BeginInit();
             this.SuspendLayout();
@@ -152,30 +150,6 @@
             this.label3.TabIndex = 6;
             this.label3.Text = "Отклонение";
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(167, 61);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(67, 13);
-            this.label4.TabIndex = 6;
-            this.label4.Text = "Округление";
-            // 
-            // cb_Rounding
-            // 
-            this.cb_Rounding.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cb_Rounding.FormattingEnabled = true;
-            this.cb_Rounding.Items.AddRange(new object[] {
-            "0",
-            "0,1",
-            "0,01",
-            "0,001",
-            "0,0001"});
-            this.cb_Rounding.Location = new System.Drawing.Point(150, 78);
-            this.cb_Rounding.Name = "cb_Rounding";
-            this.cb_Rounding.Size = new System.Drawing.Size(100, 21);
-            this.cb_Rounding.TabIndex = 7;
-            // 
             // Form_WriteMeasurementsInDimention
             // 
             this.AcceptButton = this.b_OK;
@@ -183,9 +157,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.b_Cancel;
             this.ClientSize = new System.Drawing.Size(294, 145);
-            this.Controls.Add(this.cb_Rounding);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.label4);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.tb_Suffix2);
@@ -217,7 +189,5 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label4;
-        internal System.Windows.Forms.ComboBox cb_Rounding;
     }
 }

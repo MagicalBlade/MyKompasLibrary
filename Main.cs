@@ -1044,7 +1044,6 @@ namespace MyKompasLibrary
             IDimensionText dimensionText = lineDimension as IDimensionText;
             Form_WriteMeasurementsInDimention form_WMID = new Form_WriteMeasurementsInDimention();
             form_WMID.tb_NominalText.Text = dimensionText.NominalText.Str;
-            form_WMID.cb_Rounding.SelectedIndex = 0;//сохранить в настройки
             form_WMID.ShowDialog();
             if (form_WMID.DialogResult == DialogResult.Cancel)
             {
@@ -1057,15 +1056,31 @@ namespace MyKompasLibrary
             }
             if (form_WMID.nud_TextUnder.Value != 0 && form_WMID.nud_Suffix.Value == 0)
             {
-                //double tolerance = Math.Round((double)form_WMID.nud_TextUnder.Value - nominal, form_WMID.cb_Rounding.SelectedIndex);
-                double tolerance = (double)form_WMID.nud_TextUnder.Value - nominal;
+                string[] str_TextUnder = form_WMID.nud_TextUnder.Value.ToString(new System.Globalization.NumberFormatInfo()
+                { NumberDecimalSeparator = "." })
+                    .Split('.');
+                string[] str_nominal = nominal.ToString(new System.Globalization.NumberFormatInfo()
+                { NumberDecimalSeparator = "." })
+                    .Split('.');
+                int decimals_TextUnder = str_TextUnder.Length == 2 ? str_TextUnder[1].Length : 0;
+                int decimals_nominal = str_nominal.Length == 2 ? str_nominal[1].Length : 0;
+                int decimals = decimals_TextUnder > decimals_nominal ? decimals_TextUnder : decimals_nominal;
+                double tolerance = Math.Round((double)form_WMID.nud_TextUnder.Value - nominal, decimals);
                 dimensionText.Suffix.Str = $"{form_WMID.tb_Suffix1.Text}{(tolerance < 0 ? "" : "+")}{tolerance}{form_WMID.tb_Suffix2.Text}";
                 dimensionText.TextUnder.Str = form_WMID.nud_TextUnder.Value.ToString();
             }
             if (form_WMID.nud_TextUnder.Value == 0 && form_WMID.nud_Suffix.Value != 0)
             {
-                //double textUnde = Math.Round(nominal + (double)form_WMID.nud_Suffix.Value, form_WMID.cb_Rounding.SelectedIndex);
-                double textUnde = nominal + (double)form_WMID.nud_Suffix.Value;
+                string[] str_Suffix = form_WMID.nud_Suffix.Value.ToString(new System.Globalization.NumberFormatInfo()
+                { NumberDecimalSeparator = "." })
+                    .Split('.');
+                string[] str_nominal = nominal.ToString(new System.Globalization.NumberFormatInfo()
+                { NumberDecimalSeparator = "." })
+                    .Split('.');
+                int decimals_Suffix = str_Suffix.Length == 2 ? str_Suffix[1].Length : 0;
+                int decimals_nominal = str_nominal.Length == 2 ? str_nominal[1].Length : 0;
+                int decimals = decimals_Suffix > decimals_nominal ? decimals_Suffix : decimals_nominal;
+                double textUnde = Math.Round(nominal + (double)form_WMID.nud_Suffix.Value, decimals);
                 dimensionText.Suffix.Str = $"{form_WMID.tb_Suffix1.Text}{(form_WMID.nud_Suffix.Value < 0 ? "" : "+")}{form_WMID.nud_Suffix.Value}{form_WMID.tb_Suffix2.Text}";
                 dimensionText.TextUnder.Str = textUnde.ToString();
             }
