@@ -68,11 +68,22 @@
     <Compile Include="EventObjects\BaseEvent.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Form_CreatPartFromPos.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Windows\Form_CreatPartFromPos.Designer.cs">
       <DependentUpon>Form_CreatPartFromPos.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Form_WriteMeasurementsInDimention.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Form_WriteMeasurementsInDimention.Designer.cs">
+      <DependentUpon>Form_WriteMeasurementsInDimention.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -122,8 +133,15 @@
     <Folder Include="EventObjects\CreatPartFromPos_PropertyTab\" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Form_CreatPartFromPos.resx">
       <DependentUpon>Form_CreatPartFromPos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Form_WriteMeasurementsInDimention.resx">
+      <DependentUpon>Form_WriteMeasurementsInDimention.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

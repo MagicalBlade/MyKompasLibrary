@@ -1028,6 +1028,55 @@ namespace MyKompasLibrary
             lineDimension.Update();
         }
 
+        /// <summary>
+        /// Запись измерений в размер
+        /// </summary>
+        private void WriteMeasurementsInDimention()
+        {
+            IKompasDocument2D1 kompasDocument2D1 = (IKompasDocument2D1)ActiveDocument;
+            ISelectionManager selectionManager = kompasDocument2D1.SelectionManager;
+            dynamic selectdynamic = selectionManager.SelectedObjects;
+            if (selectdynamic == null) return;
+            if (selectdynamic is object[]) return;
+            IKompasAPIObject kompasobject = selectdynamic as IKompasAPIObject;
+            if (kompasobject.Type != KompasAPIObjectTypeEnum.ksObjectLineDimension) return;
+            ILineDimension lineDimension = kompasobject as ILineDimension;
+            IDimensionText dimensionText = lineDimension as IDimensionText;
+            Form_WriteMeasurementsInDimention form_WMID = new Form_WriteMeasurementsInDimention();
+            form_WMID.tb_NominalText.Text = dimensionText.NominalText.Str;
+            form_WMID.cb_Rounding.SelectedIndex = 0;//сохранить в настройки
+            form_WMID.ShowDialog();
+            if (form_WMID.DialogResult == DialogResult.Cancel)
+            {
+                return;
+            }
+            if (!double.TryParse(dimensionText.NominalText.Str, out double nominal))
+            {
+                Application.MessageBoxEx("Не получилось преобразовать текст размера", "Ошибка", 64);
+                return;
+            }
+            if (form_WMID.nud_TextUnder.Value != 0 && form_WMID.nud_Suffix.Value == 0)
+            {
+                //double tolerance = Math.Round((double)form_WMID.nud_TextUnder.Value - nominal, form_WMID.cb_Rounding.SelectedIndex);
+                double tolerance = (double)form_WMID.nud_TextUnder.Value - nominal;
+                dimensionText.Suffix.Str = $"{form_WMID.tb_Suffix1.Text}{(tolerance < 0 ? "" : "+")}{tolerance}{form_WMID.tb_Suffix2.Text}";
+                dimensionText.TextUnder.Str = form_WMID.nud_TextUnder.Value.ToString();
+            }
+            if (form_WMID.nud_TextUnder.Value == 0 && form_WMID.nud_Suffix.Value != 0)
+            {
+                //double textUnde = Math.Round(nominal + (double)form_WMID.nud_Suffix.Value, form_WMID.cb_Rounding.SelectedIndex);
+                double textUnde = nominal + (double)form_WMID.nud_Suffix.Value;
+                dimensionText.Suffix.Str = $"{form_WMID.tb_Suffix1.Text}{(form_WMID.nud_Suffix.Value < 0 ? "" : "+")}{form_WMID.nud_Suffix.Value}{form_WMID.tb_Suffix2.Text}";
+                dimensionText.TextUnder.Str = textUnde.ToString();
+            }
+            if (form_WMID.nud_TextUnder.Value != 0 && form_WMID.nud_Suffix.Value != 0)
+            {
+                dimensionText.Suffix.Str = $"{form_WMID.tb_Suffix1.Text}{form_WMID.nud_Suffix.Value}{form_WMID.tb_Suffix2.Text}";
+                dimensionText.TextUnder.Str = form_WMID.nud_TextUnder.Value.ToString();
+            }
+            lineDimension.Update();
+        }
+
 
         /// <summary>
         /// Запись отклонений в выноску
@@ -1215,9 +1264,10 @@ namespace MyKompasLibrary
                     case 9: CreatPartFromPos_PropertyTab(); break;
                     case 10: TeklaToKompas(); break;
                     case 11: WriteToleranceDimention(); break;
-                    case 12: WriteToleranceLeader(); break;
-                    case 13: WriteToleranceLeaderUnder(); break;
-                    case 14: TestSave(); break;
+                    case 12: WriteMeasurementsInDimention(); break;
+                    case 13: WriteToleranceLeader(); break;
+                    case 14: WriteToleranceLeaderUnder(); break;
+                    case 15: TestSave(); break;
 
                     case 999: OpenHelp(); break;
                 }
