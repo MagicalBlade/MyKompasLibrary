@@ -1264,16 +1264,8 @@ namespace MyKompasLibrary
                 Application = (IApplication)Kompas.ksGetApplication7();
                 ActiveDocument = Application.ActiveDocument;
                 #region Важные проверки. Попытка избавиться от крашей при перечтении чужого чертежа.
-                ksDocument2D document2DAPI5 = Kompas.ActiveDocument2D() as ksDocument2D;
-                if (ActiveDocument == null || document2DAPI5 == null)
-                {
-                    MessageBox.Show("Не найден активный чертёж. Возможно был перечитан другой чертеж." +
-                        "\nПереключитесь на любой другой чертеж и вернитесь назад, должно заработать." +
-                        "\nЧто бы избежать данной ошибки предлагаю отключить перечитывание чужих чертежей." +
-                        "\nНастройка - Параметры - Система - Файлы - Установка прав доступа - Контроль за изменением файлов - убрать галочку");
-                    return;
-                }
-                if (ActiveDocument.DocumentType != DocumentTypeEnum.ksDocumentDrawing && ActiveDocument.DocumentType != DocumentTypeEnum.ksDocumentFragment)
+                if (ActiveDocument.DocumentType != DocumentTypeEnum.ksDocumentDrawing && ActiveDocument.DocumentType != DocumentTypeEnum.ksDocumentFragment
+                    && ActiveDocument.DocumentType != DocumentTypeEnum.ksDocumentPart && ActiveDocument.DocumentType != DocumentTypeEnum.ksDocumentAssembly)
                 {
                     MessageBox.Show("Документ не является чертежом/фрагментом. Возможно был перечитан другой чертеж." +
                         "\nПереключитесь на любой другой чертеж и вернитесь назад, должно заработать." +
@@ -1281,19 +1273,21 @@ namespace MyKompasLibrary
                         "\nНастройка - Параметры - Система - Файлы - Установка прав доступа - Контроль за изменением файлов - убрать галочку");
                     return;
                 }
-                IKompasDocument2D kompasDocument2D = (IKompasDocument2D)Application.ActiveDocument;
-                IViewsAndLayersManager viewsAndLayersManager = kompasDocument2D.ViewsAndLayersManager;
-                IViews views = viewsAndLayersManager.Views;
-                try
+                if (Application.ActiveDocument is IKompasDocument2D kompasDocument2D)
                 {
-                    IView actiview = views.ActiveView;
-                }
-                catch (AccessViolationException)
-                {
-                    MessageBox.Show("Этот чертёж был перечитан.\nБиблиотека в данном чертеже заработает только после переоткрытия этого чертежа!" +
-                        "\nЧто бы избежать данной ошибки предлагаю отключить перечитывание чужих чертежей." +
-                        "\nНастройка - Параметры - Система - Файлы - Установка прав доступа - Контроль за изменением файлов - убрать галочку");
-                    return;
+                    IViewsAndLayersManager viewsAndLayersManager = kompasDocument2D.ViewsAndLayersManager;
+                    IViews views = viewsAndLayersManager.Views;
+                    try
+                    {
+                        IView actiview = views.ActiveView;
+                    }
+                    catch (AccessViolationException)
+                    {
+                        MessageBox.Show("Этот чертёж был перечитан.\nБиблиотека в данном чертеже заработает только после переоткрытия этого чертежа!" +
+                            "\nЧто бы избежать данной ошибки предлагаю отключить перечитывание чужих чертежей." +
+                            "\nНастройка - Параметры - Система - Файлы - Установка прав доступа - Контроль за изменением файлов - убрать галочку");
+                        return;
+                    }
                 }
                 #endregion
                 //Вызываем команды
