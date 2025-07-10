@@ -296,6 +296,7 @@
             this.Name = "Form_CreatPartFromPos";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Задание параметров выдавливания";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_CreatPartFromPos_FormClosing);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form_CreatPartFromPos_KeyDown);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Form_CreatPartFromPos_KeyPress);
             this.gb_plane.ResumeLayout(false);

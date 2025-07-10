@@ -195,7 +195,6 @@ namespace MyKompasLibrary
         /// </summary>
         private void CreatPartFromPos()
         {
-            string pathSavePDF = "";
             if (Application.ActiveDocument.Type != KompasAPIObjectTypeEnum.ksObjectDrawingDocument) return;
             IDocuments documents = Application.Documents;
             IKompasDocument kompasDocument = Application.ActiveDocument;
@@ -234,7 +233,7 @@ namespace MyKompasLibrary
             }
             #endregion
 
-            #region Получание адреса папки 3D
+            #region Получение адреса папки 3D
             ILibraryManager libraryManager = Application.LibraryManager;
             string pathlibrary = $"{Path.GetDirectoryName(libraryManager.CurrentLibrary.PathName)}"; //Получить путь к папке библиотеки
             string pathAdressesFolderBZMMK = $"{pathlibrary}\\Resources\\Адреса основных папок БЗММК.txt";
@@ -272,6 +271,33 @@ namespace MyKompasLibrary
             }
             #endregion
 
+            #region Создание пути детали и проверка существование файла по этому пути
+            string nameorder = Array.Find(kompasDocument.PathName.Split('\\'), x => x.IndexOf("З.з.№", StringComparison.CurrentCultureIgnoreCase) != -1);
+            string pathFolderSave_m3d = "";
+            if (Directory.Exists($"{adresess["3D"]}\\{nameorder}"))
+            {
+                pathFolderSave_m3d = $"{adresess["3D"]}\\{nameorder}";
+            }
+            else if (Directory.Exists($"{adresess["3D архив"]}\\{nameorder}"))
+            {
+                pathFolderSave_m3d = $"{adresess["3D архив"]}\\{nameorder}";
+            }
+            else
+            {
+                MessageBox.Show($"Не найдена папка заказа в 3D. 3D деталь не сохранена.");
+                return;
+            }
+            Data_CreatPartFromPos.PathSave_m3d = $"{pathFolderSave_m3d}\\2_Деталировка\\{namePos}.m3d";
+            if (File.Exists(Data_CreatPartFromPos.PathSave_m3d))
+            {
+                DialogResult dialogResult = MessageBox.Show($"Файл с именем {Data_CreatPartFromPos.PathSave_m3d} уже существует." +
+                    $" Продолжить создание? Файл будет заменен!", "Внимание!", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.No)
+                {
+                    return;
+                }
+            } 
+            #endregion
 
             //Получение координат нулевой точки детали
             double selectX = 0;
@@ -302,29 +328,7 @@ namespace MyKompasLibrary
                 return;
             }
             namePos = form_CreatPartFromPos.tb_Name.Text;
-            #region Создание пути детали и проверка существование файла по этому пути
-            string nameorder = Array.Find(kompasDocument.PathName.Split('\\'), x => x.IndexOf("З.з.№", StringComparison.CurrentCultureIgnoreCase) != -1);
-            string pathFolderSavePDF = "";
-            if (Directory.Exists($"{adresess["3D"]}\\{nameorder}"))
-            {
-                pathFolderSavePDF = $"{adresess["3D"]}\\{nameorder}";
-            }
-            else if (Directory.Exists($"{adresess["3D архив"]}\\{nameorder}"))
-            {
-                pathFolderSavePDF = $"{adresess["3D архив"]}\\{nameorder}";
-            }
-            else
-            {
-                MessageBox.Show($"Не найдена папка заказа в 3D. 3D деталь не сохранена.");
-                return;
-            }
-            pathSavePDF = $"{pathFolderSavePDF}\\2_Деталировка\\{namePos}.m3d";
-            if (File.Exists(pathSavePDF))
-            {
-                if (Kompas.ksYesNo($"Файл с именем {pathSavePDF} уже существует. Продолжить создание? Файл будет заменен!") != 1) return;
-            } 
-            #endregion
-
+            Data_CreatPartFromPos.PathSave_m3d = $"{pathFolderSave_m3d}\\2_Деталировка\\{namePos}.m3d";
             Data_CreatPartFromPos.Rb_plane = form_CreatPartFromPos.gb_plane.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name;
             Data_CreatPartFromPos.Rb_Direction = form_CreatPartFromPos.gb_Direction.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name;
             //Получение толщины детали и приведение к числу
@@ -444,7 +448,7 @@ namespace MyKompasLibrary
                 Application.MessageBoxEx("Не удалось выдавить", "Ошибка", 64);
                 return;
             }
-            kompasDocument3D.SaveAs(pathSavePDF);
+            kompasDocument3D.SaveAs(Data_CreatPartFromPos.PathSave_m3d);
             if (kompasDocument3D.Name == "")
             {
                 MessageBox.Show("Не удалось сохранить файл. Файл или открыть или нет прав на его изменение");

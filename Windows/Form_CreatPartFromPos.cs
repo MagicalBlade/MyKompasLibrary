@@ -1,8 +1,10 @@
-﻿using System;
+﻿using MyKompasLibrary.Data;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -69,5 +71,17 @@ namespace MyKompasLibrary.Windows
             }
         }
 
+        private void Form_CreatPartFromPos_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (File.Exists(Data_CreatPartFromPos.PathSave_m3d))
+            {
+                DialogResult dialogResult = MessageBox.Show($"Файл с именем {Data_CreatPartFromPos.PathSave_m3d} уже существует." +
+                    $" Продолжить создание? Файл будет заменен!", "Внимание!", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.No)
+                {
+                    e.Cancel = true;
+                }
+            }            
+        }
     }
 }
