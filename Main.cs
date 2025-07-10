@@ -272,28 +272,6 @@ namespace MyKompasLibrary
             }
             #endregion
 
-            #region Создание пути детали и проверка существование файла по этому пути
-            string nameorder = Array.Find(kompasDocument.PathName.Split('\\'), x => x.IndexOf("З.з.№", StringComparison.CurrentCultureIgnoreCase) != -1);
-            string pathFolderSavePDF = "";
-            if (Directory.Exists($"{adresess["3D"]}\\{nameorder}"))
-            {
-                pathFolderSavePDF = $"{adresess["3D"]}\\{nameorder}";
-            }
-            else if (Directory.Exists($"{adresess["3D архив"]}\\{nameorder}"))
-            {
-                pathFolderSavePDF = $"{adresess["3D архив"]}\\{nameorder}";
-            }
-            else
-            {
-                MessageBox.Show($"Не найдена папка заказа в 3D. 3D деталь не сохранена.");
-                return;
-            }
-            pathSavePDF = $"{pathFolderSavePDF}\\2_Деталировка\\{namePos}.m3d";
-            if (File.Exists(pathSavePDF))
-            {
-                if (Kompas.ksYesNo($"Файл с именем {pathSavePDF} уже существует. Продолжить создание? Файл будет заменен!") != 1) return;
-            } 
-            #endregion
 
             //Получение координат нулевой точки детали
             double selectX = 0;
@@ -318,10 +296,35 @@ namespace MyKompasLibrary
             form_CreatPartFromPos.tb_Thickness.Text = Data_CreatPartFromPos.Thickness_str;
             form_CreatPartFromPos.cb_closeDrawing.Checked = Data_CreatPartFromPos.CloseDrawing;
             form_CreatPartFromPos.cb_close3D.Checked = Data_CreatPartFromPos.Close3D;
+            form_CreatPartFromPos.tb_Name.Text = namePos;
             if (form_CreatPartFromPos.ShowDialog() == DialogResult.Cancel)
             {
                 return;
             }
+            namePos = form_CreatPartFromPos.tb_Name.Text;
+            #region Создание пути детали и проверка существование файла по этому пути
+            string nameorder = Array.Find(kompasDocument.PathName.Split('\\'), x => x.IndexOf("З.з.№", StringComparison.CurrentCultureIgnoreCase) != -1);
+            string pathFolderSavePDF = "";
+            if (Directory.Exists($"{adresess["3D"]}\\{nameorder}"))
+            {
+                pathFolderSavePDF = $"{adresess["3D"]}\\{nameorder}";
+            }
+            else if (Directory.Exists($"{adresess["3D архив"]}\\{nameorder}"))
+            {
+                pathFolderSavePDF = $"{adresess["3D архив"]}\\{nameorder}";
+            }
+            else
+            {
+                MessageBox.Show($"Не найдена папка заказа в 3D. 3D деталь не сохранена.");
+                return;
+            }
+            pathSavePDF = $"{pathFolderSavePDF}\\2_Деталировка\\{namePos}.m3d";
+            if (File.Exists(pathSavePDF))
+            {
+                if (Kompas.ksYesNo($"Файл с именем {pathSavePDF} уже существует. Продолжить создание? Файл будет заменен!") != 1) return;
+            } 
+            #endregion
+
             Data_CreatPartFromPos.Rb_plane = form_CreatPartFromPos.gb_plane.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name;
             Data_CreatPartFromPos.Rb_Direction = form_CreatPartFromPos.gb_Direction.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name;
             //Получение толщины детали и приведение к числу
@@ -330,7 +333,7 @@ namespace MyKompasLibrary
             {
                 MessageBox.Show("Не верно указана толщина детали!");
                 return;
-            }
+            }            
             Data_CreatPartFromPos.CloseDrawing = form_CreatPartFromPos.cb_closeDrawing.Checked;
             Data_CreatPartFromPos.Close3D= form_CreatPartFromPos.cb_close3D.Checked;
             //Создаем 3D деталь

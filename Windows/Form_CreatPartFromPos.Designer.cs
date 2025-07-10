@@ -46,8 +46,10 @@
             this.rb_Straight = new System.Windows.Forms.RadioButton();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.cb_closeDrawing = new System.Windows.Forms.CheckBox();
             this.cb_close3D = new System.Windows.Forms.CheckBox();
+            this.cb_closeDrawing = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.tb_Name = new System.Windows.Forms.TextBox();
             this.gb_plane.SuspendLayout();
             this.gb_Direction.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -56,7 +58,7 @@
             // b_Ok
             // 
             this.b_Ok.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.b_Ok.Location = new System.Drawing.Point(50, 203);
+            this.b_Ok.Location = new System.Drawing.Point(128, 203);
             this.b_Ok.Name = "b_Ok";
             this.b_Ok.Size = new System.Drawing.Size(75, 23);
             this.b_Ok.TabIndex = 1;
@@ -66,7 +68,7 @@
             // b_Cancel
             // 
             this.b_Cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.b_Cancel.Location = new System.Drawing.Point(131, 203);
+            this.b_Cancel.Location = new System.Drawing.Point(209, 203);
             this.b_Cancel.Name = "b_Cancel";
             this.b_Cancel.Size = new System.Drawing.Size(75, 23);
             this.b_Cancel.TabIndex = 2;
@@ -75,7 +77,7 @@
             // 
             // tb_Thickness
             // 
-            this.tb_Thickness.Location = new System.Drawing.Point(154, 177);
+            this.tb_Thickness.Location = new System.Drawing.Point(135, 177);
             this.tb_Thickness.Name = "tb_Thickness";
             this.tb_Thickness.Size = new System.Drawing.Size(46, 20);
             this.tb_Thickness.TabIndex = 0;
@@ -83,7 +85,7 @@
             // l_Thickness
             // 
             this.l_Thickness.AutoSize = true;
-            this.l_Thickness.Location = new System.Drawing.Point(57, 181);
+            this.l_Thickness.Location = new System.Drawing.Point(38, 181);
             this.l_Thickness.Name = "l_Thickness";
             this.l_Thickness.Size = new System.Drawing.Size(94, 13);
             this.l_Thickness.TabIndex = 3;
@@ -237,6 +239,16 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Настройки";
             // 
+            // cb_close3D
+            // 
+            this.cb_close3D.AutoSize = true;
+            this.cb_close3D.Location = new System.Drawing.Point(7, 43);
+            this.cb_close3D.Name = "cb_close3D";
+            this.cb_close3D.Size = new System.Drawing.Size(87, 17);
+            this.cb_close3D.TabIndex = 0;
+            this.cb_close3D.Text = "Закрыть 3D";
+            this.cb_close3D.UseVisualStyleBackColor = true;
+            // 
             // cb_closeDrawing
             // 
             this.cb_closeDrawing.AutoSize = true;
@@ -247,15 +259,21 @@
             this.cb_closeDrawing.Text = "Закрыть чертёж";
             this.cb_closeDrawing.UseVisualStyleBackColor = true;
             // 
-            // cb_close3D
+            // label1
             // 
-            this.cb_close3D.AutoSize = true;
-            this.cb_close3D.Location = new System.Drawing.Point(7, 43);
-            this.cb_close3D.Name = "cb_close3D";
-            this.cb_close3D.Size = new System.Drawing.Size(87, 17);
-            this.cb_close3D.TabIndex = 0;
-            this.cb_close3D.Text = "Закрыть 3D";
-            this.cb_close3D.UseVisualStyleBackColor = true;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(187, 181);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(86, 13);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "Наименование:";
+            // 
+            // tb_Name
+            // 
+            this.tb_Name.Location = new System.Drawing.Point(279, 177);
+            this.tb_Name.Name = "tb_Name";
+            this.tb_Name.Size = new System.Drawing.Size(96, 20);
+            this.tb_Name.TabIndex = 0;
             // 
             // Form_CreatPartFromPos
             // 
@@ -267,7 +285,9 @@
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.gb_Direction);
             this.Controls.Add(this.gb_plane);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.l_Thickness);
+            this.Controls.Add(this.tb_Name);
             this.Controls.Add(this.tb_Thickness);
             this.Controls.Add(this.b_Cancel);
             this.Controls.Add(this.b_Ok);
@@ -310,5 +330,7 @@
         private System.Windows.Forms.GroupBox groupBox1;
         internal System.Windows.Forms.CheckBox cb_close3D;
         internal System.Windows.Forms.CheckBox cb_closeDrawing;
+        private System.Windows.Forms.Label label1;
+        internal System.Windows.Forms.TextBox tb_Name;
     }
 }
