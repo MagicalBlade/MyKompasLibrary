@@ -1,25 +1,26 @@
-﻿using Kompas6Constants;
-using Kompas6API5;
+﻿using Kompas6API5;
+using Kompas6Constants;
+using Kompas6Constants3D;
 using KompasAPI7;
+using Microsoft.Win32;
+using MyKompasLibrary.Data;
+using MyKompasLibrary.Windows;
+using MyKompasLibrary.Windows.OpenPart;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices;
-using System.Reflection;
-using Microsoft.Win32;
-using System.Windows.Forms;
-using MyKompasLibrary.Data;
-using System.IO;
 using System.Diagnostics;
-using Kompas6Constants3D;
-using System.Text.RegularExpressions;
-using MyKompasLibrary.Windows;
-using System.Security.AccessControl;
-using static System.Net.Mime.MediaTypeNames;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
 using System.Security;
+using System.Security.AccessControl;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace MyKompasLibrary
 {
@@ -1215,6 +1216,46 @@ namespace MyKompasLibrary
 
         }
 
+        /// <summary>
+        /// Открыть деталировку
+        /// </summary>
+        private void OpenPart()
+        {
+            IKompasDocument kompasDocument = Application.ActiveDocument;
+            IKompasDocument2D1 kompasDocument2D1 = kompasDocument as IKompasDocument2D1;
+            IDocuments documents = Application.Documents;
+            if (kompasDocument.DocumentType != DocumentTypeEnum.ksDocumentDrawing && kompasDocument.DocumentType != DocumentTypeEnum.ksDocumentFragment)
+            {
+                MessageBox.Show("Команда работает только в чертеже");
+                return;
+            }
+            string fileSearchDirectory = Path.Combine(kompasDocument.Path, @"..\", "Деталировка");
+            SearchFile searchFile = new SearchFile
+            {
+                FileSearchDirectory = fileSearchDirectory
+            };
+            ISelectionManager selectionManager = kompasDocument2D1.SelectionManager;
+            IKompasAPIObject selectAPIobj = selectionManager.SelectedObjects as IKompasAPIObject;
+            switch (selectAPIobj?.Type)
+            {
+                case KompasAPIObjectTypeEnum.ksObjectMarkLeader:
+                    IMarkLeader leader = selectAPIobj as IMarkLeader;
+                    searchFile.tb_search.Text = leader.Designation.Str;
+                    break;
+                default:
+                    break;
+            }
+            if (searchFile.ShowDialog() != DialogResult.OK) return;
+            if (!(searchFile.lb_Files.SelectedItem is SearchFile.PathFile path)) return;
+            string pathFile = path.Path;
+            if (!File.Exists(pathFile))
+            {
+                MessageBox.Show($"Не найден файл\n{pathFile}", "Ошибка");
+                return;
+            }
+            documents.Open(pathFile, true, false);
+        }
+
         private void TestSave()
         {
             List<DateTime> dateTimes = new List<DateTime>();
@@ -1314,7 +1355,8 @@ namespace MyKompasLibrary
                     case 12: WriteMeasurementsInDimention(); break;
                     case 13: WriteToleranceLeader(); break;
                     case 14: WriteToleranceLeaderUnder(); break;
-                    case 15: TestSave(); break;
+                    case 15: OpenPart(); break;
+                    case 16: TestSave(); break;
 
                     case 999: OpenHelp(); break;
                 }

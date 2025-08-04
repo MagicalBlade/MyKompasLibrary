@@ -90,6 +90,12 @@
     <Compile Include="Windows\Form_WriteMeasurementsInDimention.Designer.cs">
       <DependentUpon>Form_WriteMeasurementsInDimention.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\OpenPart\SearchFile.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\OpenPart\SearchFile.Designer.cs">
+      <DependentUpon>SearchFile.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Dll\Kompas6API5.dll" />
@@ -152,6 +158,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Form_WriteMeasurementsInDimention.resx">
       <DependentUpon>Form_WriteMeasurementsInDimention.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\OpenPart\SearchFile.resx">
+      <DependentUpon>SearchFile.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
