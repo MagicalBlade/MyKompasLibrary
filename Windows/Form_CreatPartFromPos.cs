@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,6 +17,10 @@ namespace MyKompasLibrary.Windows
     public partial class Form_CreatPartFromPos : Form
     {
         private KeyEventArgs KeyEventArgs;
+        private string pathFolderSave_m3d;
+
+        public string PathFolderSave_m3d { get => pathFolderSave_m3d; set => pathFolderSave_m3d = value; }
+
         public Form_CreatPartFromPos()
         {
             InitializeComponent();
@@ -73,6 +78,7 @@ namespace MyKompasLibrary.Windows
 
         private void Form_CreatPartFromPos_FormClosing(object sender, FormClosingEventArgs e)
         {
+            Data_CreatPartFromPos.PathSave_m3d = $"{PathFolderSave_m3d}\\2_Деталировка\\{tb_Name.Text}.m3d";
             if (File.Exists(Data_CreatPartFromPos.PathSave_m3d))
             {
                 DialogResult dialogResult = MessageBox.Show($"Файл с именем {Data_CreatPartFromPos.PathSave_m3d} уже существует." +

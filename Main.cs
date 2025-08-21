@@ -324,12 +324,12 @@ namespace MyKompasLibrary
             form_CreatPartFromPos.cb_closeDrawing.Checked = Data_CreatPartFromPos.CloseDrawing;
             form_CreatPartFromPos.cb_close3D.Checked = Data_CreatPartFromPos.Close3D;
             form_CreatPartFromPos.tb_Name.Text = namePos;
+            form_CreatPartFromPos.PathFolderSave_m3d = pathFolderSave_m3d;
             if (form_CreatPartFromPos.ShowDialog() == DialogResult.Cancel)
             {
                 return;
             }
             namePos = form_CreatPartFromPos.tb_Name.Text;
-            Data_CreatPartFromPos.PathSave_m3d = $"{pathFolderSave_m3d}\\2_Деталировка\\{namePos}.m3d";
             Data_CreatPartFromPos.Rb_plane = form_CreatPartFromPos.gb_plane.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name;
             Data_CreatPartFromPos.Rb_Direction = form_CreatPartFromPos.gb_Direction.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Name;
             //Получение толщины детали и приведение к числу
