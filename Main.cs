@@ -1216,46 +1216,6 @@ namespace MyKompasLibrary
 
         }
 
-        /// <summary>
-        /// Открыть деталировку
-        /// </summary>
-        private void OpenPart()
-        {
-            IKompasDocument kompasDocument = Application.ActiveDocument;
-            IKompasDocument2D1 kompasDocument2D1 = kompasDocument as IKompasDocument2D1;
-            IDocuments documents = Application.Documents;
-            if (kompasDocument.DocumentType != DocumentTypeEnum.ksDocumentDrawing && kompasDocument.DocumentType != DocumentTypeEnum.ksDocumentFragment)
-            {
-                MessageBox.Show("Команда работает только в чертеже");
-                return;
-            }
-            string fileSearchDirectory = Path.Combine(kompasDocument.Path, @"..\", "Деталировка");
-            SearchFile searchFile = new SearchFile
-            {
-                FileSearchDirectory = fileSearchDirectory
-            };
-            ISelectionManager selectionManager = kompasDocument2D1.SelectionManager;
-            IKompasAPIObject selectAPIobj = selectionManager.SelectedObjects as IKompasAPIObject;
-            switch (selectAPIobj?.Type)
-            {
-                case KompasAPIObjectTypeEnum.ksObjectMarkLeader:
-                    IMarkLeader leader = selectAPIobj as IMarkLeader;
-                    searchFile.tb_search.Text = leader.Designation.Str;
-                    break;
-                default:
-                    break;
-            }
-            if (searchFile.ShowDialog() != DialogResult.OK) return;
-            if (!(searchFile.lb_Files.SelectedItem is SearchFile.PathFile path)) return;
-            string pathFile = path.Path;
-            if (!File.Exists(pathFile))
-            {
-                MessageBox.Show($"Не найден файл\n{pathFile}", "Ошибка");
-                return;
-            }
-            documents.Open(pathFile, true, false);
-        }
-
         private void TestSave()
         {
             List<DateTime> dateTimes = new List<DateTime>();
@@ -1355,8 +1315,7 @@ namespace MyKompasLibrary
                     case 12: WriteMeasurementsInDimention(); break;
                     case 13: WriteToleranceLeader(); break;
                     case 14: WriteToleranceLeaderUnder(); break;
-                    case 15: OpenPart(); break;
-                    case 16: TestSave(); break;
+                    case 15: TestSave(); break;
 
                     case 999: OpenHelp(); break;
                 }
