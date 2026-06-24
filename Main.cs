@@ -366,7 +366,8 @@ namespace MyKompasLibrary
             Data_CreatPartFromPos.CloseDrawing = form_CreatPartFromPos.cb_closeDrawing.Checked;
             Data_CreatPartFromPos.Close3D= form_CreatPartFromPos.cb_close3D.Checked;
             //Создаем 3D деталь
-            IKompasDocument kompasDocumentCreated = documents.AddWithDefaultSettings(DocumentTypeEnum.ksDocumentPart, true);
+            //Если выбрано закрывать модель после сохранения то создаем документ в невидимом режиме
+            IKompasDocument kompasDocumentCreated = documents.AddWithDefaultSettings(DocumentTypeEnum.ksDocumentPart, !form_CreatPartFromPos.cb_close3D.Checked);
             IKompasDocument3D kompasDocument3D = kompasDocumentCreated as IKompasDocument3D;
             IPart7 part7 = kompasDocument3D.TopPart;
             part7.Name = namePos;
