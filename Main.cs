@@ -274,6 +274,14 @@ namespace MyKompasLibrary
 
             #region Создание пути детали и проверка существование файла по этому пути
             string nameorder = Array.Find(kompasDocument.PathName.Split('\\'), x => x.IndexOf("З.з.№", StringComparison.CurrentCultureIgnoreCase) != -1);
+            IEnumerable<string> numberOrderEn = from p in nameorder.Split(' ')
+                                 where p.Contains("З.з.№")
+                                 select p;
+            string numberOrder = "";
+            if (numberOrderEn.Count() == 1)
+            {
+                numberOrder = numberOrderEn.First().Trim('.').Substring(5);
+            }
             string pathFolderSave_m3d = "";
             if (Directory.Exists($"{adresess["3D"]}\\{nameorder}"))
             {
@@ -283,10 +291,26 @@ namespace MyKompasLibrary
             {
                 pathFolderSave_m3d = $"{adresess["3D архив"]}\\{nameorder}";
             }
-            else
+            else //Если прямой путь не найден, пробуем искать через номер заказа
             {
-                MessageBox.Show($"Не найдена папка заказа в 3D. 3D деталь не сохранена.");
-                return;
+                Regex re = new Regex($@"({numberOrder}[\.,]\D)|({numberOrder}-)", RegexOptions.IgnoreCase);
+                string[] dirs = Directory.GetDirectories(adresess["3D"], "*" + numberOrder + "*")
+                        .Where(path => re.IsMatch(path))
+                        .ToArray();
+                if (dirs.Count() == 0)
+                {
+                    MessageBox.Show($"Не найдена папка заказа в 3D. 3D деталь не сохранена.");
+                    return;
+                }
+                if (dirs.Count() > 1)
+                {
+                    MessageBox.Show($"Найдено несколько папок заказа в 3D. 3D деталь не сохранена.");
+                    return;
+                }
+                if (dirs.Count() == 1)
+                {
+                    pathFolderSave_m3d = dirs[0];
+                }
             }
             Data_CreatPartFromPos.PathSave_m3d = $"{pathFolderSave_m3d}\\2_Деталировка\\{namePos}.m3d";
             if (File.Exists(Data_CreatPartFromPos.PathSave_m3d))
